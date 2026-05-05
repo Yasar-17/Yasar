@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yasar. M — Change With Intent</title>
+
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#000000',
+                        light: '#ffffff',
+                        muted: '#a1a1a1',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-black text-white">
+
+    <div class="grid-lines"></div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 w-full z-[100] mix-blend-difference py-8">
+        <div class="container-custom flex justify-between items-center">
+            <a href="#" class="text-2xl font-heading font-black tracking-tighter">YASAR. M</a>
+            <nav class="hidden md:flex gap-12 text-sm font-bold uppercase tracking-widest text-muted">
+                <a href="#about" class="hover:text-white transition-colors">About</a>
+                <a href="#expertise" class="hover:text-white transition-colors">Expertise</a>
+                <a href="#work" class="hover:text-white transition-colors">Work</a>
+                <a href="#contact" class="hover:text-white transition-colors">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="min-h-screen flex items-center relative overflow-hidden bg-black">
+            <canvas id="hero-pixel-canvas" class="absolute inset-0 w-full h-full opacity-60"></canvas>
+            <div class="container-custom relative z-10 w-full pt-40 pb-20">
+                <div class="reveal">
+                    <div class="max-w-[55%] mb-6">
+                        <h1 class="hero-title font-black italic">
+                            MOHAMMED <span class="text-muted">YASAR M.</span>
+                        </h1>
+                    </div>
+                    <p class="hero-tagline text-xs md:text-sm font-bold uppercase tracking-[0.5em] mb-12 text-white/40">
+                        AI — FRONTEND — JYAM FOUNDER
+                    </p>
+                    <p class="hero-bio text-lg md:text-2xl text-muted leading-relaxed font-normal mb-12 max-w-4xl">
+                        Hey! 👋 I'm Yasar, a second-year AI & DS student from Chennai, Tamil Nadu, who builds real
+                        things on the internet. I co-founded JYAM Digital Agency, contribute to open-source, and obsess
+                        over shipping clean, functional web products. I'm deep into prompt engineering, AI-assisted
+                        workflows, and the craft of building fast.
+                    </p>
+                    <div class="flex flex-wrap gap-6">
+                        <a href="#work" class="btn-primary">View Projects</a>
+                        <a href="mailto:mohammedyasar990@gmail.com" class="btn-secondary">Contact Me</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expertise Section -->
+        <section id="expertise" class="py-32 bg-black">
+            <div class="container-custom">
+                <div class="mb-24 reveal">
+                    <h2 class="text-xs font-bold tracking-[0.3em] uppercase text-muted mb-8 italic">What I Do</h2>
+                    <h3 class="text-5xl md:text-8xl font-black max-w-4xl leading-none">AI & MODERN <br> DEVELOPMENT.
+                    </h3>
+                </div>
+
+                <div class="space-y-0">
+                    <div class="discipline-item flex flex-col md:flex-row reveal">
+                        <span class="discipline-number">01</span>
+                        <div class="flex-1">
+                            <h4 class="text-3xl mb-6 italic">Web Development</h4>
+                            <p class="text-muted text-lg max-w-2xl leading-relaxed">
+                                Building fast, responsive websites using HTML, CSS, and JavaScript. Focused on clean
+                                code and great user experiences.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="discipline-item flex flex-col md:flex-row reveal">
+                        <span class="discipline-number">02</span>
+                        <div class="flex-1">
+                            <h4 class="text-3xl mb-6 italic">AI & Data Science</h4>
+                            <p class="text-muted text-lg max-w-2xl leading-relaxed">
+                                Analyzing data and building AI workflows. Using Python and prompt engineering to create
+                                smart solutions.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="discipline-item flex flex-col md:flex-row reveal">
+                        <span class="discipline-number">03</span>
+                        <div class="flex-1">
+                            <h4 class="text-3xl mb-6 italic">Product Design</h4>
+                            <p class="text-muted text-lg max-w-2xl leading-relaxed">
+                                Creating simple and effective designs using Figma. Turning ideas into functional digital
+                                products.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Work Section -->
+        <section id="work" class="py-32 bg-white text-black">
+            <div class="container-custom">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-24 reveal">
+                    <h2 class="text-5xl md:text-8xl font-black leading-none">SELECTED <br> WORK.</h2>
+                    <p class="text-base font-bold text-black/40 max-w-[200px] mb-4">A showcase of projects and practical
+                        solutions.</p>
+                </div>
+
+                <div class="space-y-12 reveal">
+                    <!-- Project 1: SGC -->
+                    <div class="group border-t border-black/10 py-12">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                            <div class="max-w-2xl">
+                                <h4 class="text-3xl font-black mb-4 uppercase">SGC Web App (Open Source)</h4>
+                                <p class="text-black/60 italic leading-tight text-lg">Contributed to the official
+                                    Student Guidance Cell platform at teamsgc.in — a live Next.js + TypeScript +
+                                    Supabase app serving the college community. Features real-time announcements,
+                                    achievement showcases, and an event calendar.</p>
+                            </div>
+                            <div class="flex gap-8">
+                                <a href="https://github.com/Yasar-17/sgc-cahcet"
+                                    class="text-sm font-black uppercase underline decoration-2 underline-offset-8 hover:text-muted transition-colors">Repository</a>
+                                <a href="https://teamsgc.in"
+                                    class="text-sm font-black uppercase underline decoration-2 underline-offset-8 hover:text-muted transition-colors">Live
+                                    Site</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2: JYAM -->
+                    <div class="group border-t border-black/10 py-12">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                            <div class="max-w-2xl">
+                                <h4 class="text-3xl font-black mb-4 uppercase">JYAM Digital Agency</h4>
+                                <p class="text-black/60 italic leading-tight text-lg">Full agency website built from
+                                    scratch with vanilla HTML5, Tailwind CSS, and JavaScript no frameworks, no fluff.
+                                    Covers service pages, portfolio sections, and a working contact form via FormSubmit,
+                                    fully responsive and production-deployed.</p>
+                            </div>
+                            <div class="flex gap-8">
+                                <a href="https://jyam.vercel.app"
+                                    class="text-sm font-black uppercase underline decoration-2 underline-offset-8 hover:text-muted transition-colors">Browse
+                                    Site</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3: Zenny Studios -->
+                    <div class="group border-t border-black/10 py-12 border-b">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                            <div class="max-w-2xl">
+                                <h4 class="text-3xl font-black mb-4 uppercase">Zenny Studios</h4>
+                                <p class="text-black/60 italic leading-tight text-lg">Client website for a creative
+                                    studio with a dark editorial aesthetic, built with pure HTML5, Tailwind CSS, and
+                                    vanilla JS. Delivered on time with zero backend dependencies, meeting every design
+                                    and functional requirement.</p>
+                            </div>
+                            <div class="flex gap-8">
+                                <a href="https://zenny-studios.vercel.app"
+                                    class="text-sm font-black uppercase underline decoration-2 underline-offset-8 hover:text-muted transition-colors">Browse
+                                    Site</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Education/Leadership Section (SHIFTED HERE - POST PROJECTS) -->
+        <section id="about" class="py-32 bg-black border-t border-white/5">
+            <div class="container-custom">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    <div class="reveal">
+                        <h2 class="text-xs font-bold tracking-[0.3em] uppercase text-muted mb-6 italic font-heading">
+                            Education & Leadership</h2>
+                        <h3 class="text-3xl md:text-5xl font-black leading-none mb-8">BUILDING A STRONG FOUNDATION.</h3>
+                        <p class="text-muted text-lg leading-relaxed">
+                            Currently pursuing a B.Tech in AI & Data Science. I lead teams to build practical solutions
+                            and iterate until they are perfect.
+                        </p>
+                    </div>
+                    <div class="reveal" style="transition-delay: 100ms;">
+                        <div class="border-l border-white/10 pl-8 space-y-10">
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-muted mb-2">College</h4>
+                                <p class="text-xl font-black italic">C. Abdul Hakeem College</p>
+                                <p class="text-xs text-muted uppercase font-bold">B.Tech AI & Data Science | 2024 —
+                                    Present</p>
+                                <p class="text-white text-sm font-bold mt-2">GPA: 7.8</p>
+                            </div>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-muted mb-2">Role</h4>
+                                <p class="text-xl font-black italic">JYAM Digital Agency</p>
+                                <p class="text-xs text-muted uppercase font-bold">Co-Founder & Developer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-32 bg-black border-t border-white/5">
+            <div class="container-custom">
+                <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+                    <div class="reveal">
+                        <h2 class="text-xs font-bold tracking-[0.3em] uppercase text-muted mb-6 italic">Get In Touch
+                        </h2>
+                        <h3 class="text-5xl md:text-7xl font-black leading-none mb-8 uppercase italic">Let's <br> <span
+                                class="text-muted">Talk.</span></h3>
+                        <div class="space-y-4">
+                            <p class="text-muted uppercase text-xs font-bold mb-2">Direct Mail</p>
+                            <a href="mailto:mohammedyasar990@gmail.com"
+                                class="block text-xl font-bold border-b-2 border-white pb-1 hover:text-muted transition-colors w-max">mohammedyasar990@gmail.com</a>
+                        </div>
+                    </div>
+                    <form id="contact-form" action="https://formsubmit.co/mohammedyasar990@gmail.com" method="POST"
+                        class="space-y-8 p-8 border border-white/10 reveal" style="transition-delay: 100ms;">
+                        <!-- FormSubmit Configuration -->
+                        <input type="hidden" name="_subject" value="New Portfolio Inquiry!">
+                        <input type="hidden" name="_template" value="table">
+                        <input type="hidden" name="_captcha" value="false">
+
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase tracking-widest text-muted font-bold">Your Name</label>
+                            <input name="name" type="text" placeholder="NAME"
+                                class="w-full bg-transparent border-b border-white/10 py-3 focus:border-white outline-none transition-all placeholder:text-white/5 uppercase font-bold text-lg italic"
+                                required>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase tracking-widest text-muted font-bold">Your Email</label>
+                            <input name="email" type="email" placeholder="EMAIL"
+                                class="w-full bg-transparent border-b border-white/10 py-3 focus:border-white outline-none transition-all placeholder:text-white/5 uppercase font-bold text-lg italic"
+                                required>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase tracking-widest text-muted font-bold">Message</label>
+                            <textarea name="message" rows="2" placeholder="MESSAGE"
+                                class="w-full bg-transparent border-b border-white/10 py-3 focus:border-white outline-none transition-all placeholder:text-white/5 uppercase font-bold text-lg italic resize-none"
+                                required></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full py-6 border border-white text-white font-black uppercase italic tracking-[0.3em] hover:bg-white hover:text-black transition-all text-sm">
+                            SEND MESSAGE
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-20 bg-black relative overflow-hidden border-t border-white/5">
+        <div class="absolute bottom-[-5%] left-0 w-full text-center">
+            <span class="footer-logo italic opacity-[0.02]">YASAR. M</span>
+        </div>
+
+        <div class="container-custom relative z-10">
+            <div
+                class="grid grid-cols-2 md:grid-cols-4 gap-12 text-[10px] uppercase tracking-[0.2em] font-bold text-muted">
+                <div class="space-y-4">
+                    <p class="text-white">Navigation</p>
+                    <a href="#hero" class="block hover:text-white transition-colors">Home</a>
+                    <a href="#about" class="block hover:text-white transition-colors">Foundations</a>
+                    <a href="#work" class="block hover:text-white transition-colors">Work</a>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-white">Coordinates</p>
+                    <a href="https://github.com/Yasar-17" class="block hover:text-white transition-colors">Github</a>
+                    <a href="#" class="block hover:text-white transition-colors">LinkedIn</a>
+                </div>
+                <div class="col-span-2 flex flex-col justify-end items-end text-right">
+                    <p class="text-white italic">© 2026 Mohammed Yasar. M</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
