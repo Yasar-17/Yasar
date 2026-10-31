@@ -112,3 +112,4 @@ export const playSound = (type = 'click', soundEnabled = true) => {
     // Ignore audio error gracefully if browser blocks before user interaction
   }
 };
+

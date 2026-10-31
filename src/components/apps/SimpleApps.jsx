@@ -563,3 +563,4 @@ export const SimpleApp = ({ appId }) => {
     </div>
   );
 };
+

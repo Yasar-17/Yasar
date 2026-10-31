@@ -6,10 +6,12 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'framer-motion']
+          vendor: ['react', 'react-dom', 'framer-motion'],
+          three: ['three'],
         }
       }
     }

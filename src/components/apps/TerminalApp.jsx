@@ -157,3 +157,4 @@ export const TerminalApp = () => {
     </div>
   );
 };
+

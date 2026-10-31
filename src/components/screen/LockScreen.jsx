@@ -123,3 +123,4 @@ export const LockScreen = () => {
     </div>
   );
 };
+

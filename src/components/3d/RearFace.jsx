@@ -141,3 +141,4 @@ export const RearFace = () => {
     </div>
   );
 };
+

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePhone } from '../../context/PhoneContext';
 import { 
-  SearchIcon, ChevronUpIcon, ChevronDownIcon,
+  SearchIcon, ChevronDownIcon,
   FolderIcon, BookOpenIcon, CpuIcon, BriefcaseIcon, FileTextIcon, 
   MailIcon, GithubIcon, LinkIcon, TerminalIcon, SettingsIcon,
   BarChartIcon, UserIcon, GridIcon, HeadphonesIcon
@@ -13,12 +13,23 @@ export const HomeScreen = () => {
     activeWallpaper, cycleGlyph, activeGlyphPattern 
   } = usePhone();
 
-  const [hoveredCell, setHoveredCell] = useState(null);
+  const [time, setTime] = useState('9:41');
 
-  // GitHub 18 cols x 7 rows sample activity data
-  const githubCols = 18;
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      setTime(`${h}:${m}`);
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 16 columns x 7 rows GitHub sample activity data (matching prsd.dev widget)
+  const githubCols = 16;
   const githubRows = 7;
-  // Deterministic sample pattern
   const getActivityLevel = (col, row) => {
     const val = (col * 3 + row * 7 + (col * row) % 5) % 10;
     if (val < 4) return 0;
@@ -37,142 +48,103 @@ export const HomeScreen = () => {
     });
   };
 
-  // Dynamic wallpaper styling
   const getWallpaperStyle = () => {
     switch (activeWallpaper) {
       case 'warm-copper':
-        return 'bg-gradient-to-b from-[#2b160b] via-[#613014] to-[#120a06]';
+        return 'from-[#2b160b] via-[#613014] to-[#120a06]';
       case 'obsidian':
-        return 'bg-gradient-to-b from-[#0e141b] via-[#0B0F14] to-[#05070a]';
+        return 'from-[#141922] via-[#0B0F14] to-[#040608]';
       case 'midnight':
-        return 'bg-gradient-to-b from-[#181528] via-[#100e1c] to-[#07060d]';
+        return 'from-[#1b152b] via-[#100e1c] to-[#07060d]';
       case 'silver':
-        return 'bg-gradient-to-b from-[#3a4450] via-[#1e252e] to-[#0c1015]';
+        return 'from-[#323a46] via-[#1e252e] to-[#0c1015]';
       default:
-        return 'bg-gradient-to-b from-[#2b160b] via-[#613014] to-[#120a06]';
+        return 'from-[#2b160b] via-[#613014] to-[#120a06]';
     }
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col justify-between p-4 pt-10 pb-5 overflow-hidden select-none transition-colors duration-500 ${getWallpaperStyle()}`}>
+    <div className={`relative w-full h-full flex flex-col justify-between bg-gradient-to-b ${getWallpaperStyle()} text-[#E8EDF2] p-4 pt-3 pb-3 overflow-hidden select-none transition-colors duration-500`}>
       
-      {/* Dynamic fluid wallpaper curves (as seen on reference device) */}
-      <div className="absolute inset-0 pointer-events-none opacity-30">
-        <svg className="w-full h-full" viewBox="0 0 390 844" fill="none">
-          <path d="M-50 200 C 150 150, 250 450, 450 350" stroke="#ffaa5a" strokeWidth="120" strokeLinecap="round" opacity="0.35" filter="blur(60px)" />
-          <path d="M-20 600 C 180 500, 280 800, 450 700" stroke="#d97724" strokeWidth="100" strokeLinecap="round" opacity="0.25" filter="blur(70px)" />
+      {/* Background organic glow waves */}
+      <div className="absolute inset-0 pointer-events-none opacity-40">
+        <svg className="w-full h-full" viewBox="0 0 372 806" fill="none">
+          <circle cx="100" cy="180" r="160" fill="#d76c2d" opacity="0.3" filter="blur(60px)" />
+          <circle cx="280" cy="620" r="180" fill="#b85822" opacity="0.25" filter="blur(70px)" />
         </svg>
       </div>
 
-      {/* TOP BAR / QUICK PANEL HINT */}
-      <div className="relative z-10 flex flex-col space-y-2">
-        {/* Swipe down / click hint for Quick Panel */}
-        <div 
-          onClick={toggleQuickPanel}
-          className="flex items-center justify-between px-2 cursor-pointer group py-1"
-          title="Click to open Quick Panel"
-        >
-          <div className="flex items-center space-x-1.5 text-[11px] font-mono tracking-wider text-[#C5CED8]/80">
-            <span className="w-2 h-2 rounded-full bg-[#7CF2C9]" />
-            <span>YASAR OS</span>
+      {/* 1. TOP STATUS BAR & DYNAMIC ISLAND */}
+      <div className="relative z-20 flex items-center justify-between px-2 pt-1 h-[34px]">
+        {/* Time */}
+        <span className="font-semibold text-[13px] tracking-tight text-white/90">
+          {time}
+        </span>
+
+        {/* Dynamic Island Pill */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-1 w-[96px] h-[26px] bg-[#000000] rounded-full border border-white/10 shadow-md flex items-center justify-between px-2.5">
+          <div className="w-[8px] h-[8px] rounded-full bg-[#0a121c] border border-[#232c37] flex items-center justify-center">
+            <div className="w-[3px] h-[3px] rounded-full bg-[#1b2d42]" />
           </div>
-          <div className="flex items-center space-x-1 text-[11px] text-[#9AA6B2] group-hover:text-[#7CF2C9] transition-colors">
-            <span>Quick Panel</span>
-            <ChevronDownIcon className="w-3.5 h-3.5" />
+          <div className="flex items-center space-x-0.5">
+            <span className="w-1 h-2 bg-[#7CF2C9] rounded-full animate-pulse" />
+            <span className="w-1 h-3 bg-[#7CF2C9] rounded-full animate-pulse" />
+            <span className="w-1 h-1.5 bg-[#7CF2C9] rounded-full animate-pulse" />
           </div>
         </div>
 
-        {/* Minimalist Search Bar */}
-        <div 
-          onClick={toggleDrawer}
-          className="flex items-center space-x-2.5 bg-[#151B23]/80 hover:bg-[#151B23] backdrop-blur-md border border-[#1B222B] rounded-full px-4 py-2.5 shadow-sm cursor-pointer transition-all active:scale-[0.98]"
-        >
-          <SearchIcon className="w-4 h-4 text-[#9AA6B2]" />
-          <span className="text-[13px] text-[#9AA6B2]">Search apps, case studies, skills...</span>
+        {/* Status Signals: Cellular, WiFi, Battery */}
+        <div className="flex items-center space-x-1.5 text-white/90">
+          {/* Signal Bars */}
+          <div className="flex items-end space-x-0.5 h-2.5">
+            <span className="w-0.5 h-1 bg-current rounded-sm" />
+            <span className="w-0.5 h-1.5 bg-current rounded-sm" />
+            <span className="w-0.5 h-2 bg-current rounded-sm" />
+            <span className="w-0.5 h-2.5 bg-current rounded-sm" />
+          </div>
+
+          {/* Battery */}
+          <div className="w-4 h-2.5 rounded-[3px] border border-current p-0.5 flex items-center">
+            <div className="w-full h-full bg-current rounded-[1px]" />
+          </div>
         </div>
       </div>
 
-      {/* BENTO WIDGETS SECTION */}
-      <div className="relative z-10 flex flex-col space-y-2.5 my-2">
+      {/* 2. BENTO WIDGETS SECTION */}
+      <div className="relative z-10 flex flex-col space-y-2 mt-2 mb-1">
         
-        {/* Row 1: About Me Bento + Equalizer Widget */}
-        <div className="grid grid-cols-2 gap-2.5">
-          {/* About Me Bento Card */}
-          <div 
-            onClick={(e) => handleAppClick('about', e)}
-            className="bg-[#151B23]/85 hover:bg-[#151B23] backdrop-blur-md border border-[#1B222B] rounded-[22px] p-3.5 shadow-md cursor-pointer transition-all active:scale-[0.98] flex flex-col justify-between"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#7CF2C9]">Builder</span>
-              <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[#E8EDF2]">
-                <UserIcon className="w-4 h-4" />
-              </div>
-            </div>
-            <div>
-              <h3 className="font-grotesk text-[15px] font-semibold text-[#E8EDF2] leading-tight">
-                Yasar
-              </h3>
-              <p className="text-[11px] text-[#9AA6B2] leading-tight mt-0.5">
-                Data Analyst & AI Student
-              </p>
-            </div>
-          </div>
-
-          {/* Equalizer Waveform Bento Card (Linked to Glyph Matrix) */}
-          <div 
-            onClick={cycleGlyph}
-            className="bg-[#151B23]/85 hover:bg-[#151B23] backdrop-blur-md border border-[#1B222B] rounded-[22px] p-3.5 shadow-md cursor-pointer transition-all active:scale-[0.98] flex flex-col justify-between"
-            title="Tap to toggle rear Glyph equalizer mode"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FFB86B]">Glyph Live</span>
-              <HeadphonesIcon className="w-4 h-4 text-[#E8EDF2]" />
-            </div>
-            <div className="flex items-end space-x-1.5 h-[24px]">
-              <span className="w-1.5 bg-[#FFB86B] rounded-full animate-pulse h-[60%]" />
-              <span className="w-1.5 bg-[#FFB86B] rounded-full animate-pulse h-[100%]" />
-              <span className="w-1.5 bg-[#FFB86B] rounded-full animate-pulse h-[40%]" />
-              <span className="w-1.5 bg-[#FFB86B] rounded-full animate-pulse h-[80%]" />
-              <span className="w-1.5 bg-[#FFB86B] rounded-full animate-pulse h-[50%]" />
-            </div>
-            <p className="text-[10px] font-mono text-[#9AA6B2]">
-              Pattern: #{activeGlyphPattern + 1}
-            </p>
-          </div>
-        </div>
-
-        {/* Row 2: GitHub Activity Heatmap Bento */}
+        {/* GitHub Contribution Heatmap Widget */}
         <div 
           onClick={(e) => handleAppClick('github', e)}
-          className="bg-[#151B23]/85 hover:bg-[#151B23] backdrop-blur-md border border-[#1B222B] rounded-[22px] p-3 shadow-md cursor-pointer transition-all active:scale-[0.99]"
+          className="bg-[#151B23]/80 hover:bg-[#151B23] backdrop-blur-xl border border-white/10 rounded-[24px] p-3 shadow-lg cursor-pointer transition-all active:scale-[0.98]"
         >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <GithubIcon className="w-3.5 h-3.5 text-[#E8EDF2]" />
-              <span className="text-[11px] font-semibold text-[#E8EDF2]">GitHub Activity</span>
+              <span className="text-[12px] font-semibold text-[#E8EDF2]">GitHub Activity</span>
             </div>
-            <span className="text-[10px] font-mono text-[#9AA6B2]">sample data</span>
+            <span className="text-[10px] font-mono text-[#7CF2C9] bg-[#1F2933] px-2 py-0.5 rounded-full border border-[#2B3542]">
+              sample data
+            </span>
           </div>
 
-          {/* 18-column heatmap matrix */}
+          {/* 16-col Heatmap */}
           <div className="grid grid-flow-col grid-rows-7 gap-1">
             {Array.from({ length: githubCols * githubRows }).map((_, idx) => {
               const col = Math.floor(idx / githubRows);
               const row = idx % githubRows;
               const level = getActivityLevel(col, row);
               const colors = [
-                'bg-[#1F2933]',
-                'bg-[#7CF2C9]/30',
-                'bg-[#7CF2C9]/65',
+                'bg-white/5',
+                'bg-[#7CF2C9]/35',
+                'bg-[#7CF2C9]/70',
                 'bg-[#7CF2C9]',
               ];
 
               return (
                 <div
                   key={idx}
-                  onMouseEnter={() => setHoveredCell({ col, row, level })}
-                  onMouseLeave={() => setHoveredCell(null)}
-                  className={`w-[13px] h-[10px] rounded-[2px] transition-transform hover:scale-125 ${colors[level]}`}
+                  className={`w-[14px] h-[9px] rounded-[2px] transition-transform hover:scale-125 ${colors[level]}`}
                 />
               );
             })}
@@ -180,193 +152,221 @@ export const HomeScreen = () => {
 
           <div className="flex items-center justify-between text-[10px] text-[#9AA6B2] mt-2">
             <span>[N] contributions</span>
-            <div className="flex items-center space-x-1">
-              <span>Less</span>
-              <span className="w-2 h-2 rounded-[1px] bg-[#1F2933]" />
-              <span className="w-2 h-2 rounded-[1px] bg-[#7CF2C9]/30" />
-              <span className="w-2 h-2 rounded-[1px] bg-[#7CF2C9]/65" />
-              <span className="w-2 h-2 rounded-[1px] bg-[#7CF2C9]" />
-              <span>More</span>
+            <span className="text-[10px] text-[#7CF2C9] font-medium">16 weeks ending Oct 31</span>
+          </div>
+        </div>
+
+        {/* Intro & Book a Call Bento Card */}
+        <div 
+          onClick={(e) => handleAppClick('about', e)}
+          className="bg-[#151B23]/80 hover:bg-[#151B23] backdrop-blur-xl border border-white/10 rounded-[24px] p-3.5 shadow-lg cursor-pointer transition-all active:scale-[0.98] flex items-center justify-between"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-[14px] bg-[#7CF2C9] text-[#0B0F14] flex items-center justify-center font-bold font-grotesk text-[16px] shadow-md">
+              Y
             </div>
+            <div>
+              <h3 className="font-grotesk text-[14px] font-bold text-[#E8EDF2] leading-tight">
+                Yasar — Data Analyst & Builder
+              </h3>
+              <p className="text-[11px] text-[#9AA6B2] leading-tight mt-0.5">
+                3rd-Year B.Tech AI & Data Science
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-1 text-[11px] font-medium text-[#7CF2C9] bg-[#1F2933] px-2.5 py-1 rounded-full border border-[#2B3542]">
+            <span>About</span>
           </div>
         </div>
 
       </div>
 
-      {/* 8 APPS GRID */}
+      {/* 3. 8 APPS GRID */}
       <div className="relative z-10 grid grid-cols-4 gap-y-3.5 gap-x-2 px-1 my-1">
         
-        {/* 1. Projects */}
+        {/* Projects */}
         <button
           type="button"
           onClick={(e) => handleAppClick('projects', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#FFB86B] text-[#0B0F14] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#FFB86B] to-[#e68a35] text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform border border-white/20">
             <FolderIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Projects
           </span>
         </button>
 
-        {/* 2. Case Studies */}
+        {/* Case Studies */}
         <button
           type="button"
           onClick={(e) => handleAppClick('case-studies', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#8AB4FF] text-[#0B0F14] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#8AB4FF] to-[#508bf0] text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform border border-white/20">
             <BookOpenIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Case Studies
           </span>
         </button>
 
-        {/* 3. Skills */}
+        {/* Skills */}
         <button
           type="button"
           onClick={(e) => handleAppClick('skills', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#7CF2C9] text-[#0B0F14] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#7CF2C9] to-[#4dd4a5] text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform border border-white/20">
             <CpuIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Skills
           </span>
         </button>
 
-        {/* 4. Experience */}
+        {/* Experience */}
         <button
           type="button"
           onClick={(e) => handleAppClick('experience', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#F4A0C0] text-[#0B0F14] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#F4A0C0] to-[#df729b] text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform border border-white/20">
             <BriefcaseIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Experience
           </span>
         </button>
 
-        {/* 5. Terminal CLI */}
+        {/* Terminal */}
         <button
           type="button"
           onClick={(e) => handleAppClick('terminal', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#1E293B] border border-[#334155] text-[#7CF2C9] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-[#334155] text-[#7CF2C9] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform">
             <TerminalIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Terminal
           </span>
         </button>
 
-        {/* 6. Settings */}
+        {/* Settings */}
         <button
           type="button"
           onClick={(e) => handleAppClick('settings', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#C9B8FF] text-[#0B0F14] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#C9B8FF] to-[#9e85f5] text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform border border-white/20">
             <SettingsIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Settings
           </span>
         </button>
 
-        {/* 7. Dashboards */}
+        {/* Dashboards */}
         <button
           type="button"
           onClick={(e) => handleAppClick('dashboards', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#8AB4FF] text-[#0B0F14] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#8AB4FF] to-[#457de3] text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform border border-white/20">
             <BarChartIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Dashboards
           </span>
         </button>
 
-        {/* 8. Links */}
+        {/* Links */}
         <button
           type="button"
           onClick={(e) => handleAppClick('links', e)}
           className="flex flex-col items-center group focus:outline-none"
         >
-          <div className="w-[54px] h-[54px] rounded-[18px] bg-[#7CF2C9] text-[#0B0F14] flex items-center justify-center shadow-md group-hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-[56px] h-[56px] rounded-[18px] bg-gradient-to-br from-[#7CF2C9] to-[#39ba8d] text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform border border-white/20">
             <LinkIcon className="w-6 h-6" />
           </div>
-          <span className="text-[11px] font-medium text-[#E8EDF2] mt-1 tracking-tight truncate max-w-[64px]">
+          <span className="text-[11px] font-medium text-white/95 mt-1 tracking-tight truncate max-w-[64px]">
             Links
           </span>
         </button>
 
       </div>
 
-      {/* DOCK (4 stark monochrome circular icons matching reference device) */}
-      <div className="relative z-10 pt-2 border-t border-white/5">
-        <div className="grid grid-cols-4 gap-2 items-center justify-items-center">
+      {/* 4. SEARCH PILL (Spotlight search) */}
+      <div 
+        onClick={toggleDrawer}
+        className="relative z-10 flex items-center justify-center space-x-2 bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-full py-1.5 px-4 mx-auto cursor-pointer transition-all active:scale-95 shadow-sm border border-white/10"
+      >
+        <SearchIcon className="w-3.5 h-3.5 text-white/80" />
+        <span className="text-[12px] text-white/80 font-medium">Search</span>
+      </div>
+
+      {/* 5. FLOATING GLASS DOCK (prsd.dev style) */}
+      <div className="relative z-10 pt-1">
+        <div className="bg-white/15 backdrop-blur-2xl border border-white/20 rounded-[30px] p-2 px-3 shadow-xl flex items-center justify-between">
           
           {/* Dock 1: App Drawer */}
           <button
             type="button"
             onClick={toggleDrawer}
-            className="flex flex-col items-center group focus:outline-none"
+            className="w-[50px] h-[50px] rounded-[16px] bg-white text-[#0B0F14] flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-transform"
             aria-label="Open App Drawer"
             title="App Drawer"
           >
-            <div className="w-[52px] h-[52px] rounded-full bg-white text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform">
-              <GridIcon className="w-6 h-6" />
-            </div>
+            <GridIcon className="w-6 h-6" />
           </button>
 
           {/* Dock 2: Contact */}
           <button
             type="button"
             onClick={(e) => handleAppClick('contact', e)}
-            className="flex flex-col items-center group focus:outline-none"
+            className="w-[50px] h-[50px] rounded-[16px] bg-white text-[#0B0F14] flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-transform"
             aria-label="Contact App"
             title="Contact"
           >
-            <div className="w-[52px] h-[52px] rounded-full bg-white text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform">
-              <MailIcon className="w-6 h-6" />
-            </div>
+            <MailIcon className="w-6 h-6 text-[#0B0F14]" />
           </button>
 
           {/* Dock 3: Resume */}
           <button
             type="button"
             onClick={(e) => handleAppClick('resume', e)}
-            className="flex flex-col items-center group focus:outline-none"
+            className="w-[50px] h-[50px] rounded-[16px] bg-white text-[#0B0F14] flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-transform"
             aria-label="Resume App"
             title="Resume"
           >
-            <div className="w-[52px] h-[52px] rounded-full bg-white text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform">
-              <FileTextIcon className="w-6 h-6" />
-            </div>
+            <FileTextIcon className="w-6 h-6 text-[#0B0F14]" />
           </button>
 
           {/* Dock 4: GitHub */}
           <button
             type="button"
             onClick={(e) => handleAppClick('github', e)}
-            className="flex flex-col items-center group focus:outline-none"
+            className="w-[50px] h-[50px] rounded-[16px] bg-white text-[#0B0F14] flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-transform"
             aria-label="GitHub App"
             title="GitHub"
           >
-            <div className="w-[52px] h-[52px] rounded-full bg-white text-[#0B0F14] flex items-center justify-center shadow-lg group-hover:scale-105 active:scale-95 transition-transform">
-              <GithubIcon className="w-6 h-6" />
-            </div>
+            <GithubIcon className="w-6 h-6 text-[#0B0F14]" />
           </button>
 
         </div>
+      </div>
+
+      {/* 6. BOTTOM HOME INDICATOR BAR */}
+      <div className="relative z-20 flex justify-center pt-2">
+        <button
+          type="button"
+          onClick={() => {}}
+          className="w-[120px] h-[4px] rounded-full bg-white/70 hover:bg-white transition-colors focus:outline-none cursor-pointer"
+          aria-label="Home"
+        />
       </div>
 
     </div>
