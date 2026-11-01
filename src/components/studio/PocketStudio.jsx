@@ -17,7 +17,9 @@ export const PocketStudio = () => {
     soundEnabled, 
     toggleSound, 
     activeWallpaper,
-    setActiveWallpaper 
+    setActiveWallpaper,
+    isSnapshotting,
+    triggerSnapshot
   } = usePhone();
 
   const [finish, setFinish] = useState('silver');
@@ -51,6 +53,11 @@ export const PocketStudio = () => {
           background: 'linear-gradient(115deg, rgba(255,255,255,0.4) 0%, transparent 40%, rgba(255,255,255,0.05) 100%)',
         }}
       />
+
+      {/* Snapshot Shutter Flash */}
+      {isSnapshotting && (
+        <div className="absolute inset-0 bg-white z-[90] animate-ping opacity-90 pointer-events-none" />
+      )}
 
       {isLocked ? (
         <LockScreen />
@@ -185,6 +192,18 @@ export const PocketStudio = () => {
 
               <button
                 type="button"
+                onClick={triggerSnapshot}
+                className="text-[12px] font-medium text-[#FFB86B] hover:text-[#ffd29d] px-3 py-1.5 rounded-full hover:bg-white/5 transition-colors"
+                title="Essential Key: Camera Snapshot"
+                aria-label="Essential Key: Camera Snapshot"
+              >
+                Snapshot
+              </button>
+
+              <div className="w-[1px] h-3 bg-[#232b36]" />
+
+              <button
+                type="button"
                 onClick={toggleSound}
                 className="text-[#9AA6B2] hover:text-[#E8EDF2] px-2.5 py-1.5 rounded-full hover:bg-white/5 transition-colors"
                 title={soundEnabled ? 'Mute Sounds' : 'Enable Sounds'}
@@ -221,3 +240,4 @@ export const PocketStudio = () => {
     </div>
   );
 };
+

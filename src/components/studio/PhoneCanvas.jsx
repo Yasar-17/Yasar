@@ -1,17 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
+import { GlyphTextureManager } from './GlyphTexture';
+import { PhoneMeshBuilder } from './PhoneMeshBuilder';
+import { usePhone } from '../../context/PhoneContext';
 
-// Model scaling constants
 const SCREEN_WIDTH = 372;
 const SCREEN_HEIGHT = 806;
-const v = 4.04 / 0.0731025;
-const w = (4.04 * 163.4) / 78 / 0.15000003;
-const f = (4.04 / 0.0731025) * 0.06681;
-const y = ((4.04 * 163.4) / 78 / 0.15000003) * 0.14429;
+const D = 0.42;
 
 export const FINISH_CONFIGS = {
   silver: {
@@ -20,7 +17,7 @@ export const FINISH_CONFIGS = {
     swatch: '#d4d8dd',
     aluminum: '#d4d8dd',
     back: '#e2e6eb',
-    tint: '#c8ccd1',
+    tint: '#f0f4f8',
     antenna: '#b8bcc2',
   },
   obsidian: {
@@ -29,7 +26,7 @@ export const FINISH_CONFIGS = {
     swatch: '#1e2228',
     aluminum: '#282c33',
     back: '#181a1f',
-    tint: '#121417',
+    tint: '#1a1f26',
     antenna: '#3a3f47',
   },
   copper: {
@@ -38,14 +35,16 @@ export const FINISH_CONFIGS = {
     swatch: '#d76c2d',
     aluminum: '#d76c2d',
     back: '#dc7a3b',
-    tint: '#bf622d',
+    tint: '#e8894d',
     antenna: '#eab58b',
   },
 };
 
 export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFlipChange }) => {
+  const { activeGlyphPattern, triggerSnapshot } = usePhone();
   const containerRef = useRef(null);
-  const modelRef = useRef(null);
+  const meshBuilderRef = useRef(null);
+  const glyphMgrRef = useRef(null);
   const animFrameRef = useRef(null);
   const [surfaceEl, setSurfaceEl] = useState(null);
   const [glError, setGlError] = useState(false);
@@ -59,7 +58,14 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
   const lastPointerPosRef = useRef({ x: 0, y: 0 });
   const lastTimeRef = useRef(0);
 
-  // Handle flip prop
+  // Sync Glyph Matrix pattern with PhoneContext
+  useEffect(() => {
+    if (glyphMgrRef.current) {
+      glyphMgrRef.current.setPattern(activeGlyphPattern);
+    }
+  }, [activeGlyphPattern]);
+
+  // Handle flip prop from studio controls
   useEffect(() => {
     const baseOffset = -0.045;
     if (flipped) {
@@ -71,28 +77,9 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
   // Update material finishes when finish prop changes
   useEffect(() => {
-    if (!modelRef.current) return;
+    if (!meshBuilderRef.current) return;
     const config = FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver;
-    modelRef.current.traverse((child) => {
-      if (child.isMesh && child.material) {
-        const materials = Array.isArray(child.material) ? child.material : [child.material];
-        materials.forEach((mat) => {
-          if (mat.name === "Anodized aluminum") {
-            mat.color.set(config.aluminum);
-            mat.roughness = 0.3;
-            mat.metalness = 0.75;
-          } else if (mat.name === "Frosted glass") {
-            mat.color.set(config.back);
-            mat.roughness = 0.35;
-          } else if (mat.name === "Glass tint") {
-            mat.color.set(config.tint);
-            mat.roughness = 0.28;
-          } else if (mat.name === "Plastic antena") {
-            mat.color.set(config.antenna);
-          }
-        });
-      }
-    });
+    meshBuilderRef.current.updateFinish(config);
   }, [finish]);
 
   useEffect(() => {
@@ -120,7 +107,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     webglRenderer.setClearColor(0x000000, 0);
     webglRenderer.outputColorSpace = THREE.SRGBColorSpace;
     webglRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-    webglRenderer.toneMappingExposure = 1.0;
+    webglRenderer.toneMappingExposure = 1.05;
     webglRenderer.shadowMap.enabled = true;
     webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
     webglRenderer.domElement.className = "phone-canvas absolute inset-0 pointer-events-none";
@@ -146,7 +133,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     webglScene.add(webglModelGroup);
     css3dScene.add(css3dModelGroup);
 
-    // CSS3D Phone Surface Element
+    // 5. CSS3D Phone Surface Element
     const surfaceDiv = document.createElement("div");
     surfaceDiv.className = "phone-surface";
     surfaceDiv.style.width = `${SCREEN_WIDTH}px`;
@@ -158,17 +145,18 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     surfaceDiv.style.isolation = "isolate";
 
     const css3dObject = new CSS3DObject(surfaceDiv);
-    css3dObject.scale.set(f / SCREEN_WIDTH, y / SCREEN_HEIGHT, 0.01);
-    css3dObject.position.z = 0.004375 * v + 0.006;
+    // 372px x 0.01 = 3.72 units, 806px x 0.01 = 8.06 units
+    css3dObject.scale.set(0.01, 0.01, 0.01);
+    css3dObject.position.z = D / 2 + 0.018;
     css3dModelGroup.add(css3dObject);
 
     setSurfaceEl(surfaceDiv);
 
-    // 5. Lighting Setup
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xb0a5a0, 0.7);
+    // 6. Lighting Setup (prsd.dev studio light rig)
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xb0a5a0, 0.75);
     webglScene.add(hemiLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
     keyLight.position.set(-3, 6, 9);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024);
@@ -180,71 +168,33 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     keyLight.shadow.normalBias = 0.008;
     webglScene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xffd5b8, 0.65);
+    const fillLight = new THREE.DirectionalLight(0xffdfc4, 0.7);
     fillLight.position.set(5, 1, 3);
     webglScene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.5);
     rimLight.position.set(-2, 5, -7);
     webglScene.add(rimLight);
 
-    // 6. Load 3D Phone Model
-    const loader = new GLTFLoader();
-    loader.setMeshoptDecoder(MeshoptDecoder);
+    // 7. Initialize Glyph Texture Manager & Build Authentic 3D Phone Mesh
+    const glyphMgr = new GlyphTextureManager();
+    glyphMgr.setPattern(activeGlyphPattern);
+    glyphMgrRef.current = glyphMgr;
 
-    loader.load(
-      '/models/phone-model.glb',
-      (gltf) => {
-        const root = gltf.scene;
-        root.rotation.y = Math.PI;
-        root.scale.set(v, w, v);
+    const meshBuilder = new PhoneMeshBuilder(glyphMgr);
+    meshBuilderRef.current = meshBuilder;
 
-        root.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            const mats = Array.isArray(child.material) ? child.material : [child.material];
-            mats.forEach((mat) => {
-              if (mat.name === "Anodized aluminum") {
-                mat.roughness = 0.3;
-                mat.metalness = 0.75;
-              } else if (mat.name === "Frosted glass") {
-                mat.roughness = 0.35;
-              } else if (mat.name === "Glass tint") {
-                mat.roughness = 0.28;
-              }
-            });
-          }
-        });
+    const phoneModelMesh = meshBuilder.build(FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver);
+    webglModelGroup.add(phoneModelMesh);
 
-        modelRef.current = root;
-        webglModelGroup.add(root);
-
-        // Apply initial finish colors
-        const cfg = FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver;
-        root.traverse((c) => {
-          if (c.isMesh && c.material) {
-            const mats = Array.isArray(c.material) ? c.material : [c.material];
-            mats.forEach((m) => {
-              if (m.name === "Anodized aluminum") m.color.set(cfg.aluminum);
-              else if (m.name === "Frosted glass") m.color.set(cfg.back);
-              else if (m.name === "Glass tint") m.color.set(cfg.tint);
-              else if (m.name === "Plastic antena") m.color.set(cfg.antenna);
-            });
-          }
-        });
-      },
-      undefined,
-      (err) => {
-        console.warn("Failed to load 3D GLB, falling back to CSS stage", err);
-        setGlError(true);
-      }
-    );
-
-    // 7. Render Loop with Smooth Spring & Inertia
+    // 8. Render Loop with Smooth Spring & Inertia
     const lerp = (a, b, t) => a + (b - a) * t;
 
-    const animate = () => {
+    const animate = (time) => {
+      // Update dynamic 137-LED Glyph Matrix texture
+      glyphMgr.update(time);
+
+      // Smooth lerp rotation toward target
       rotRef.current.x = lerp(rotRef.current.x, targetRotRef.current.x, 0.12);
       rotRef.current.y = lerp(rotRef.current.y, targetRotRef.current.y, 0.12);
 
@@ -262,7 +212,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
     animFrameRef.current = requestAnimationFrame(animate);
 
-    // 8. Resize Handler
+    // 9. Resize Handler
     const handleResize = () => {
       if (!container) return;
       const w = container.clientWidth;
@@ -285,6 +235,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
         css3dRenderer.domElement.parentNode.removeChild(css3dRenderer.domElement);
       }
       webglRenderer.dispose();
+      glyphMgr.dispose();
     };
   }, []);
 
