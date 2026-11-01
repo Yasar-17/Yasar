@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import * as THREE from 'three';
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import { GlyphTextureManager } from './GlyphTexture';
-import { PhoneMeshBuilder } from './PhoneMeshBuilder';
+import { PhoneAssembly } from './phone/PhoneAssembly';
 import { usePhone } from '../../context/PhoneContext';
 
 const SCREEN_WIDTH = 372;
@@ -43,7 +43,7 @@ export const FINISH_CONFIGS = {
 export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFlipChange }) => {
   const { activeGlyphPattern, triggerSnapshot } = usePhone();
   const containerRef = useRef(null);
-  const meshBuilderRef = useRef(null);
+  const phoneAssemblyRef = useRef(null);
   const glyphMgrRef = useRef(null);
   const animFrameRef = useRef(null);
   const [surfaceEl, setSurfaceEl] = useState(null);
@@ -77,9 +77,9 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
   // Update material finishes when finish prop changes
   useEffect(() => {
-    if (!meshBuilderRef.current) return;
+    if (!phoneAssemblyRef.current) return;
     const config = FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver;
-    meshBuilderRef.current.updateFinish(config);
+    phoneAssemblyRef.current.updateFinish(config);
   }, [finish]);
 
   useEffect(() => {
@@ -176,15 +176,15 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     rimLight.position.set(-2, 5, -7);
     webglScene.add(rimLight);
 
-    // 7. Initialize Glyph Texture Manager & Build Authentic 3D Phone Mesh
+    // 7. Initialize Glyph Texture Manager & Build Modular Phone Assembly
     const glyphMgr = new GlyphTextureManager();
     glyphMgr.setPattern(activeGlyphPattern);
     glyphMgrRef.current = glyphMgr;
 
-    const meshBuilder = new PhoneMeshBuilder(glyphMgr);
-    meshBuilderRef.current = meshBuilder;
+    const phoneAssembly = new PhoneAssembly(glyphMgr);
+    phoneAssemblyRef.current = phoneAssembly;
 
-    const phoneModelMesh = meshBuilder.build(FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver);
+    const phoneModelMesh = phoneAssembly.build(FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver);
     webglModelGroup.add(phoneModelMesh);
 
     // 8. Render Loop with Smooth Spring & Inertia

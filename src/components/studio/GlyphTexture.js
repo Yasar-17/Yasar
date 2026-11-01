@@ -133,3 +133,4 @@ export class GlyphTextureManager {
     this.texture.dispose();
   }
 }
+
