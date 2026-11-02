@@ -4,7 +4,7 @@ import { playSound } from '../audio/soundEngine';
 const PhoneContext = createContext(null);
 
 export const PhoneProvider = ({ children }) => {
-  const [isLocked, setIsLocked] = useState(false);
+  const [isLocked, setIsLocked] = useState(true);
   const [activeApp, setActiveApp] = useState(null);
   const [appOriginRect, setAppOriginRect] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

@@ -270,3 +270,18 @@ export const BellIcon = (props) => (
   </svg>
 );
 
+export const MenuIcon = (props) => (
+  <svg {...svgProps} {...props}>
+    <line x1="4" y1="8" x2="20" y2="8" />
+    <line x1="4" y1="16" x2="20" y2="16" />
+  </svg>
+);
+
+export const ArrowRightIcon = (props) => (
+  <svg {...svgProps} {...props}>
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+
