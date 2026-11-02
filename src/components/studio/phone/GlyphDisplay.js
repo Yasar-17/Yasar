@@ -21,3 +21,4 @@ export class GlyphDisplay {
     return this.group;
   }
 }
+
