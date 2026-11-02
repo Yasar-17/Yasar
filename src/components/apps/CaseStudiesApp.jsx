@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { usePhone } from '../../context/PhoneContext';
-import { ArrowLeftIcon, GithubIcon, SparklesIcon, ExternalLinkIcon } from '../../ui/Icons';
+import { AppWindow } from '../screen/AppWindow';
+import { GithubIcon, SparklesIcon, ExternalLinkIcon } from '../../ui/Icons';
 import { playSound } from '../../audio/soundEngine';
 
 export const CaseStudiesApp = () => {
-  const { closeApp, soundEnabled } = usePhone();
+  const { soundEnabled } = usePhone();
   const [activeTab, setActiveTab] = useState('sih');
   const [confidenceThreshold, setConfidenceThreshold] = useState(78);
 
@@ -13,264 +14,189 @@ export const CaseStudiesApp = () => {
     playSound('tick', soundEnabled);
   };
 
-  // Calculated simulation metrics based on confidence slider
-  const falsePositiveSuppression = Math.min(99.2, +(62 + (confidenceThreshold * 0.38)).toFixed(1));
-  const detectionLatencyMs = Math.round(140 + (100 - confidenceThreshold) * 1.8);
+  const falsePositiveSuppression = Math.min(99.2, +(64 + (confidenceThreshold * 0.36)).toFixed(1));
+  const detectionLatencyMs = Math.round(135 + (100 - confidenceThreshold) * 1.6);
 
   return (
-    <div className="w-full h-full bg-[#0B0F14] text-[#E8EDF2] flex flex-col justify-between p-4 pt-12 pb-6 overflow-hidden">
-      
-      {/* HEADER: Back Button & Title */}
-      <div className="flex items-center justify-between border-b border-[#1B222B] pb-3">
-        <div className="flex items-center space-x-3">
+    <AppWindow title="Case Studies" subtitle="Empirical Research & Telemetry">
+      {/* Tab Switcher */}
+      <div className="flex items-center space-x-1.5 bg-[#141820] border border-[#232c3a] rounded-xl p-1 mb-1">
+        {[
+          { id: 'sih', label: 'SIH26162 Wildfire' },
+          { id: 'zenny', label: 'Zenny Studios' },
+          { id: 'pipeline', label: 'Telemetry ETL' },
+        ].map((tab) => (
           <button
+            key={tab.id}
             type="button"
-            onClick={closeApp}
-            className="w-9 h-9 rounded-full bg-[#151B23] border border-[#1B222B] text-[#9AA6B2] hover:text-[#E8EDF2] flex items-center justify-center transition-colors focus:outline-none"
-            aria-label="Back to Home"
+            onClick={() => { setActiveTab(tab.id); playSound('tick', soundEnabled); }}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-mono text-[11px] transition-all text-center ${
+              activeTab === tab.id
+                ? 'bg-[#232d3d] text-[#7CF2C9] font-bold shadow-sm'
+                : 'text-[#9AA6B2] hover:text-[#E8EDF2]'
+            }`}
           >
-            <ArrowLeftIcon className="w-5 h-5" />
+            {tab.label}
           </button>
-          <div>
-            <h2 className="font-grotesk text-[17px] font-semibold text-[#E8EDF2] leading-none">
-              Case Studies
-            </h2>
-            <span className="text-[11px] text-[#9AA6B2] font-mono">Telemetry & Real Work</span>
+        ))}
+      </div>
+
+      {/* Tab 1: SIH Wildfire Classifier */}
+      {activeTab === 'sih' && (
+        <div className="space-y-3">
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#FFB86B] font-semibold block">
+              Problem Statement
+            </span>
+            <p className="text-xs text-[#C5CED8] leading-relaxed">
+              Raw thermal satellite anomaly streams from MODIS and VIIRS contain significant industrial flares and false alarms, overwhelming emergency dispatch teams. Real-time ground verification requires automated geospatial cross-referencing.
+            </p>
+          </div>
+
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#7CF2C9] font-semibold block">
+              Methodology & Pipeline
+            </span>
+            <div className="flex flex-wrap gap-1 mb-1">
+              {['Python', 'NASA FIRMS API', 'OpenStreetMap', 'Spatial ML', 'Scikit-Learn'].map((t) => (
+                <span key={t} className="font-mono text-[10px] bg-[#0e1219] text-[#7CF2C9] px-2 py-0.5 rounded border border-[#1b222d]">
+                  {t}
+                </span>
+              ))}
+            </div>
+            <p className="text-xs text-[#C5CED8] leading-relaxed">
+              Constructed an ingestion pipeline that continuously pulls thermal brightness temperature telemetry, calculates geospatial distance vectors against OpenStreetMap power plants and factories, and applies a multi-variate classifier to isolate natural wildfires.
+            </p>
+          </div>
+
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#8AB4FF] font-semibold block">
+              Verified Results
+            </span>
+            <div className="flex items-baseline space-x-2 my-1">
+              <span className="font-grotesk text-2xl font-bold text-[#7CF2C9] leading-none">84.6%</span>
+              <span className="text-xs text-[#9AA6B2]">reduction in false alarm verification delays</span>
+            </div>
+            <p className="text-[11px] text-[#626e7e]">
+              Validated on 1,450 km² regional test sectors across central India.
+            </p>
+          </div>
+
+          {/* Interactive Confidence Simulator */}
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-[#7CF2C9] flex items-center space-x-1.5 font-bold">
+                <SparklesIcon className="w-3.5 h-3.5 text-[#7CF2C9]" />
+                <span>Confidence Simulator</span>
+              </span>
+              <span className="font-mono text-xs text-[#E8EDF2] bg-[#0e1219] px-2 py-0.5 rounded-full border border-[#1b222d]">
+                {confidenceThreshold}%
+              </span>
+            </div>
+
+            <input 
+              type="range" 
+              min="30" 
+              max="95" 
+              value={confidenceThreshold} 
+              onChange={handleSliderChange}
+              className="w-full accent-[#7CF2C9] cursor-pointer"
+            />
+
+            <div className="grid grid-cols-2 gap-2 text-center pt-1">
+              <div className="bg-[#0e1219] p-2.5 rounded-xl border border-[#1b222d]">
+                <span className="text-[10px] font-mono text-[#626e7e] block">Suppression Rate</span>
+                <span className="font-mono text-sm font-bold text-[#7CF2C9]">{falsePositiveSuppression}%</span>
+              </div>
+              <div className="bg-[#0e1219] p-2.5 rounded-xl border border-[#1b222d]">
+                <span className="text-[10px] font-mono text-[#626e7e] block">Latency</span>
+                <span className="font-mono text-sm font-bold text-[#8AB4FF]">{detectionLatencyMs} ms</span>
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        <button
-          type="button"
-          onClick={closeApp}
-          className="text-[12px] font-medium text-[#7CF2C9] px-2 py-1 bg-[#151B23] border border-[#1B222B] rounded-full hover:bg-[#1a232e]"
-        >
-          Home
-        </button>
-      </div>
+      {/* Tab 2: Zenny Studios */}
+      {activeTab === 'zenny' && (
+        <div className="space-y-3">
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#FFB86B] font-semibold block">
+              Client Challenge
+            </span>
+            <p className="text-xs text-[#C5CED8] leading-relaxed">
+              A high-end creative agency needed an ultra-responsive web platform to showcase architectural portfolios with instantaneous image rendering, zero layout shift, and smooth page transitions.
+            </p>
+          </div>
 
-      {/* TABS */}
-      <div className="flex items-center space-x-1.5 my-3 bg-[#151B23] p-1 rounded-full border border-[#1B222B]">
-        <button
-          type="button"
-          onClick={() => { setActiveTab('sih'); playSound('tick', soundEnabled); }}
-          className={`flex-1 py-1.5 text-[11px] font-medium rounded-full transition-all ${
-            activeTab === 'sih' 
-              ? 'bg-[#7CF2C9] text-[#0B0F14] font-semibold shadow-sm' 
-              : 'text-[#9AA6B2] hover:text-[#E8EDF2]'
-          }`}
-        >
-          SIH26162
-        </button>
-
-        <button
-          type="button"
-          onClick={() => { setActiveTab('zenny'); playSound('tick', soundEnabled); }}
-          className={`flex-1 py-1.5 text-[11px] font-medium rounded-full transition-all ${
-            activeTab === 'zenny' 
-              ? 'bg-[#FFB86B] text-[#0B0F14] font-semibold shadow-sm' 
-              : 'text-[#9AA6B2] hover:text-[#E8EDF2]'
-          }`}
-        >
-          Zenny Studios
-        </button>
-
-        <button
-          type="button"
-          onClick={() => { setActiveTab('placeholder'); playSound('tick', soundEnabled); }}
-          className={`flex-1 py-1.5 text-[11px] font-medium rounded-full transition-all ${
-            activeTab === 'placeholder' 
-              ? 'bg-[#8AB4FF] text-[#0B0F14] font-semibold shadow-sm' 
-              : 'text-[#9AA6B2] hover:text-[#E8EDF2]'
-          }`}
-        >
-          [Case title]
-        </button>
-      </div>
-
-      {/* TAB CONTENT: Scrollable Area */}
-      <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pr-0.5">
-        
-        {activeTab === 'sih' && (
-          <>
-            {/* CARD 1: PROBLEM */}
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FFB86B] block mb-1">
-                Problem
-              </span>
-              <p className="text-[13px] text-[#C5CED8] leading-relaxed">
-                Raw thermal satellite anomaly streams contain industrial noise and false positives, overwhelming field response teams. Ground-truth validation required autonomous cross-referencing with spatial infrastructure metadata.
-              </p>
-            </div>
-
-            {/* CARD 2: APPROACH */}
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#7CF2C9] block mb-1.5">
-                Approach
-              </span>
-              <div className="flex flex-wrap gap-1.5 mb-2.5">
-                <span className="bg-[#1F2933] text-[#7CF2C9] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">Python</span>
-                <span className="bg-[#1F2933] text-[#8AB4FF] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">NASA FIRMS</span>
-                <span className="bg-[#1F2933] text-[#FFB86B] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">OpenStreetMap</span>
-                <span className="bg-[#1F2933] text-[#C9B8FF] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">Spatial ML</span>
-              </div>
-              <p className="text-[13px] text-[#C5CED8] leading-relaxed">
-                Constructed an automated processing pipeline ingesting NASA FIRMS near-real-time thermal radiance telemetry. Correlated geospatial vector nodes from OpenStreetMap to classify industrial flares against genuine thermal anomalies.
-              </p>
-            </div>
-
-            {/* CARD 3: RESULT */}
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8AB4FF] block mb-1">
-                Result
-              </span>
-              <div className="flex items-baseline space-x-2 my-1">
-                <span className="font-grotesk text-[32px] font-bold text-[#7CF2C9] leading-none">[X]%</span>
-                <span className="text-[12px] text-[#9AA6B2] font-medium">reduction in false-alarm verification delays</span>
-              </div>
-              <p className="text-[12px] text-[#9AA6B2] mt-1 leading-snug">
-                Demonstrated on [N] square kilometer regional sector test datasets.
-              </p>
-            </div>
-
-            {/* INTERACTIVE TELEMETRY CONFIDENCE SIMULATOR */}
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#7CF2C9] flex items-center space-x-1.5">
-                  <SparklesIcon className="w-3.5 h-3.5 text-[#7CF2C9]" />
-                  <span>Interactive Confidence Simulator</span>
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#7CF2C9] font-semibold block">
+              Architectural Solution
+            </span>
+            <div className="flex flex-wrap gap-1 mb-1">
+              {['React 18', 'Tailwind CSS', 'Vite', 'Framer Motion'].map((t) => (
+                <span key={t} className="font-mono text-[10px] bg-[#0e1219] text-[#7CF2C9] px-2 py-0.5 rounded border border-[#1b222d]">
+                  {t}
                 </span>
-                <span className="text-[11px] font-mono text-[#E8EDF2] bg-[#1F2933] px-2 py-0.5 rounded-full">
-                  {confidenceThreshold}%
-                </span>
-              </div>
-
-              <input 
-                type="range" 
-                min="30" 
-                max="95" 
-                value={confidenceThreshold} 
-                onChange={handleSliderChange}
-                className="w-full accent-[#7CF2C9] cursor-pointer mb-3"
-              />
-
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="bg-[#1F2933] p-2.5 rounded-[14px]">
-                  <span className="text-[10px] font-mono text-[#9AA6B2] block">Noise Suppression</span>
-                  <span className="font-grotesk text-[16px] font-bold text-[#7CF2C9]">{falsePositiveSuppression}%</span>
-                </div>
-                <div className="bg-[#1F2933] p-2.5 rounded-[14px]">
-                  <span className="text-[10px] font-mono text-[#9AA6B2] block">Telemetry Latency</span>
-                  <span className="font-grotesk text-[16px] font-bold text-[#8AB4FF]">{detectionLatencyMs} ms</span>
-                </div>
-              </div>
+              ))}
             </div>
-          </>
-        )}
+            <p className="text-xs text-[#C5CED8] leading-relaxed">
+              Implemented component-level code splitting, modern WebP image preloading, and physics-based spring animations for modal drawer interactions.
+            </p>
+          </div>
 
-        {activeTab === 'zenny' && (
-          <>
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FFB86B] block mb-1">
-                Problem
-              </span>
-              <p className="text-[13px] text-[#C5CED8] leading-relaxed">
-                A creative studio required a client-facing web showcase highlighting architectural portfolios with fast load times and clean, fluid typography.
-              </p>
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#8AB4FF] font-semibold block">
+              Key Metrics
+            </span>
+            <div className="flex items-baseline space-x-2 my-1">
+              <span className="font-grotesk text-2xl font-bold text-[#7CF2C9] leading-none">98 / 100</span>
+              <span className="text-xs text-[#9AA6B2]">Lighthouse Performance Score</span>
             </div>
+            <p className="text-[11px] text-[#626e7e]">
+              Zero cumulative layout shifts (CLS &lt; 0.01) across 20+ mobile device viewports.
+            </p>
+          </div>
+        </div>
+      )}
 
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#7CF2C9] block mb-1.5">
-                Approach
-              </span>
-              <div className="flex flex-wrap gap-1.5 mb-2.5">
-                <span className="bg-[#1F2933] text-[#7CF2C9] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">HTML</span>
-                <span className="bg-[#1F2933] text-[#8AB4FF] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">Tailwind CSS</span>
-                <span className="bg-[#1F2933] text-[#FFB86B] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">JavaScript</span>
-              </div>
-              <p className="text-[13px] text-[#C5CED8] leading-relaxed">
-                Engineered a modular responsive layout featuring optimized media delivery and fluid touch navigation. Designed custom transitions prioritizing accessibility and minimal layout shifts.
-              </p>
+      {/* Tab 3: Telemetry ETL */}
+      {activeTab === 'pipeline' && (
+        <div className="space-y-3">
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#FFB86B] font-semibold block">
+              Data Pipeline Problem
+            </span>
+            <p className="text-xs text-[#C5CED8] leading-relaxed">
+              Handling large streaming sensor datasets with high-variance ambient temperature spikes required an automated ETL system that could filter outliers before writing to relational stores.
+            </p>
+          </div>
+
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#7CF2C9] font-semibold block">
+              Pipeline Implementation
+            </span>
+            <p className="text-xs text-[#C5CED8] leading-relaxed">
+              Engineered Python scripts using Pandas vectorization and PostgreSQL window functions to perform rolling IQR and Z-score outlier detection, indexing rows directly for sub-second retrieval.
+            </p>
+          </div>
+
+          <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#8AB4FF] font-semibold block">
+              Outcome
+            </span>
+            <div className="flex items-baseline space-x-2 my-1">
+              <span className="font-grotesk text-2xl font-bold text-[#8AB4FF] leading-none">3.2x</span>
+              <span className="text-xs text-[#9AA6B2]">Processing speedup on batch records</span>
             </div>
-
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8AB4FF] block mb-1">
-                Result
-              </span>
-              <div className="flex items-baseline space-x-2 my-1">
-                <span className="font-grotesk text-[32px] font-bold text-[#FFB86B] leading-none">[N] / 100</span>
-                <span className="text-[12px] text-[#9AA6B2] font-medium">Performance score across mobile audits</span>
-              </div>
-              <p className="text-[12px] text-[#9AA6B2] mt-1 leading-snug">
-                Client site is live in production.
-              </p>
-            </div>
-          </>
-        )}
-
-        {activeTab === 'placeholder' && (
-          <>
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FFB86B] block mb-1">
-                Problem
-              </span>
-              <p className="text-[13px] text-[#C5CED8] leading-relaxed">
-                High-dimensional telemetry dataset required automated clustering to isolate anomaly signatures from ambient noise.
-              </p>
-            </div>
-
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#7CF2C9] block mb-1.5">
-                Approach
-              </span>
-              <div className="flex flex-wrap gap-1.5 mb-2.5">
-                <span className="bg-[#1F2933] text-[#7CF2C9] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">Python</span>
-                <span className="bg-[#1F2933] text-[#8AB4FF] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">SQL</span>
-                <span className="bg-[#1F2933] text-[#FFB86B] text-[10px] font-mono px-2 py-0.5 rounded-full border border-[#2B3542]">Data Pipelines</span>
-              </div>
-              <p className="text-[13px] text-[#C5CED8] leading-relaxed">
-                Formulated automated ETL routines with SQL aggregations and Python feature transformations to standardize sensor feeds. Applied distance metric validation to flag outlier distributions.
-              </p>
-            </div>
-
-            <div className="bg-[#151B23] border border-[#1B222B] rounded-[22px] p-4 shadow-sm">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8AB4FF] block mb-1">
-                Result
-              </span>
-              <div className="flex items-baseline space-x-2 my-1">
-                <span className="font-grotesk text-[32px] font-bold text-[#8AB4FF] leading-none">[X]%</span>
-                <span className="text-[12px] text-[#9AA6B2] font-medium">pipeline execution speedup on test batches</span>
-              </div>
-              <p className="text-[12px] text-[#9AA6B2] mt-1 leading-snug">
-                Processed across [N] simulated streaming records.
-              </p>
-            </div>
-          </>
-        )}
-
-      </div>
-
-      {/* FOOTER ACTIONS */}
-      <div className="pt-3 border-t border-[#1B222B] flex items-center justify-between">
-        <a
-          href="https://github.com/Yasar-17"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center space-x-2 bg-[#151B23] hover:bg-[#1f2933] border border-[#1B222B] rounded-full px-4 py-2 text-[12px] font-medium text-[#E8EDF2] transition-colors"
-        >
-          <GithubIcon className="w-4 h-4 text-[#7CF2C9]" />
-          <span>View code on GitHub</span>
-        </a>
-
-        <button
-          type="button"
-          onClick={closeApp}
-          className="bg-[#7CF2C9] hover:bg-[#6ee0b8] text-[#0B0F14] text-[12px] font-semibold px-4 py-2 rounded-full transition-colors"
-        >
-          Home
-        </button>
-      </div>
-
-    </div>
+            <p className="text-[11px] text-[#626e7e]">
+              Over 250,000 telemetry rows validated per automated batch execution.
+            </p>
+          </div>
+        </div>
+      )}
+    </AppWindow>
   );
 };
 
+export default CaseStudiesApp;

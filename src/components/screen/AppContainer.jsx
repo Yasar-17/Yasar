@@ -1,30 +1,44 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePhone } from '../../context/PhoneContext';
-import { CaseStudiesApp } from '../apps/CaseStudiesApp';
+import { AboutApp } from '../apps/AboutApp';
 import { ProjectsApp } from '../apps/ProjectsApp';
-import { TerminalApp } from '../apps/TerminalApp';
-import { SettingsApp } from '../apps/SettingsApp';
+import { SkillsApp } from '../apps/SkillsApp';
+import { ExperienceApp } from '../apps/ExperienceApp';
 import { GitHubApp } from '../apps/GitHubApp';
-import { SimpleApp } from '../apps/SimpleApps';
+import { TerminalApp } from '../apps/TerminalApp';
+import { ResumeApp } from '../apps/ResumeApp';
+import { ContactApp } from '../apps/ContactApp';
+import { SettingsApp } from '../apps/SettingsApp';
+import { CaseStudiesApp } from '../apps/CaseStudiesApp';
 
 export const AppContainer = () => {
-  const { activeApp } = usePhone();
+  const { activeApp, appOriginRect } = usePhone();
 
   const renderAppContent = () => {
     switch (activeApp) {
-      case 'case-studies':
-        return <CaseStudiesApp />;
+      case 'about':
+        return <AboutApp />;
       case 'projects':
         return <ProjectsApp />;
-      case 'terminal':
-        return <TerminalApp />;
-      case 'settings':
-        return <SettingsApp />;
+      case 'skills':
+        return <SkillsApp />;
+      case 'experience':
+        return <ExperienceApp />;
       case 'github':
         return <GitHubApp />;
+      case 'terminal':
+        return <TerminalApp />;
+      case 'resume':
+        return <ResumeApp />;
+      case 'contact':
+        return <ContactApp />;
+      case 'settings':
+        return <SettingsApp />;
+      case 'case-studies':
+        return <CaseStudiesApp />;
       default:
-        return <SimpleApp appId={activeApp} />;
+        return null;
     }
   };
 
@@ -33,9 +47,9 @@ export const AppContainer = () => {
       {activeApp && (
         <motion.div
           key={activeApp}
-          initial={{ opacity: 0, scale: 0.88, y: 20 }}
+          initial={{ opacity: 0, scale: 0.88, y: 24 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 15 }}
+          exit={{ opacity: 0, scale: 0.92, y: 16 }}
           transition={{
             type: 'spring',
             stiffness: 380,
@@ -52,3 +66,4 @@ export const AppContainer = () => {
   );
 };
 
+export default AppContainer;

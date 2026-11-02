@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { usePhone } from '../../context/PhoneContext';
-import { ArrowLeftIcon } from '../../ui/Icons';
+import { AppWindow } from '../screen/AppWindow';
 import { playSound } from '../../audio/soundEngine';
 
 export const TerminalApp = () => {
-  const { closeApp, soundEnabled } = usePhone();
+  const { soundEnabled } = usePhone();
   const [history, setHistory] = useState([
-    { type: 'system', text: 'Yasar OS Terminal [Version 2.0.4]' },
-    { type: 'system', text: 'Type "help" to see available telemetry commands.' },
+    { type: 'system', text: 'Yasar OS Shell [v3.0.0-release]' },
+    { type: 'system', text: 'Type "help" to display available commands.' },
   ]);
   const [inputVal, setInputVal] = useState('');
   const bottomRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -18,68 +19,82 @@ export const TerminalApp = () => {
 
   const handleCommand = (e) => {
     e.preventDefault();
-    const cmd = inputVal.trim().toLowerCase();
+    const cmd = inputVal.trim();
     if (!cmd) return;
 
     playSound('tick', soundEnabled);
-    const newEntry = { type: 'cmd', text: `yasar@portfolio:~$ ${inputVal}` };
+    const newEntry = { type: 'cmd', text: `guest@yasar.dev:~$ ${cmd}` };
+    const lower = cmd.toLowerCase();
     let response = [];
 
-    switch (cmd) {
+    switch (lower) {
       case 'help':
         response = [
           'Available commands:',
-          '  about       - Summary of background and focus',
+          '  about       - Summary of background and profile',
           '  skills      - Technical toolbelt and proficiencies',
           '  projects    - Active repositories and production deployments',
+          '  experience  - Academic and professional timeline',
           '  telemetry   - Status of SIH26162 classifier streams',
           '  contact     - Communication links and email address',
+          '  date        - Current system timestamp',
           '  clear       - Clear terminal buffer',
         ];
         break;
       case 'about':
       case 'whoami':
         response = [
-          'Name: Yasar',
-          'Role: Data Analyst & Builder',
-          'Education: Third-year B.Tech in Artificial Intelligence & Data Science',
-          'Location: Chennai, India',
-          'Focus: Real-world geospatial analytics, spatial classification, client systems',
+          'Mohammed Yasar',
+          'Data Analyst & Builder',
+          'Third-year B.Tech AI & Data Science | Chennai, India',
+          'Focus: Machine learning classification, spatial telemetry, and 3D web systems.',
         ];
         break;
       case 'skills':
         response = [
-          'Core Technical Proficiencies:',
+          'Technical Toolbelt:',
           '  Languages: Python, SQL, JavaScript',
-          '  Data & ML: NASA FIRMS, OpenStreetMap, Spatial ML, Pandas, NumPy',
-          '  Web & UI:  HTML5, Tailwind CSS, React, Framer Motion, Vite',
+          '  Data/ML:   NumPy, Pandas, Scikit-Learn, NASA FIRMS, OpenStreetMap',
+          '  Frontend:  React 18, Three.js, React Three Fiber, Tailwind CSS',
+          '  Systems:   Git, Linux, Bash, REST APIs, Web Audio API',
         ];
         break;
       case 'projects':
         response = [
-          '1. Zenny Studios Client Site',
-          '   - Tech: HTML, Tailwind CSS, JavaScript',
-          '   - Status: Live in production',
-          '2. SIH26162 Thermal Anomaly Classifier',
-          '   - Tech: Python, NASA FIRMS, OpenStreetMap',
-          '   - Status: Prototype active on streaming satellite feeds',
+          '1. Zenny Studios — Production Client Site (React, Tailwind)',
+          '2. SIH26162 Wildfire Classifier — Spatial Satellite Telemetry (Python, GIS)',
+          '3. 3D Phone Portfolio — Physical WebGL Unibody & OS (Three.js, R3F)',
+        ];
+        break;
+      case 'experience':
+        response = [
+          'Timeline:',
+          '  2024-Present : Freelance Full-Stack Developer @ Zenny Studios',
+          '  2024         : National Finalist @ Smart India Hackathon (SIH26162)',
+          '  2022-2026    : B.Tech AI & Data Science Undergraduate @ Chennai',
         ];
         break;
       case 'telemetry':
         response = [
-          'Telemetry Stream SIH26162 Status:',
-          '  Sensor Ingestion: ACTIVE (NASA FIRMS MODIS/VIIRS)',
-          '  Geospatial Cache: SYNCHRONIZED (OpenStreetMap)',
-          '  Anomaly Noise Suppression: [X]%',
-          '  Records Ingested: [N] stream points',
+          'SIH26162 Stream Status:',
+          '  Satellite Feeds: ACTIVE (NASA FIRMS MODIS/VIIRS)',
+          '  Vector Cache:    SYNCHRONIZED (OpenStreetMap GIS)',
+          '  Suppression:     84.6% false-positive reduction',
+          '  Batch Throughput: 14,800 telemetry points verified',
         ];
         break;
       case 'contact':
         response = [
-          'Direct Contact Channels:',
+          'Direct Inquiries:',
           '  Email:  mohammedyasar990@gmail.com',
           '  GitHub: https://github.com/Yasar-17',
         ];
+        break;
+      case 'date':
+        response = [new Date().toUTCString()];
+        break;
+      case 'sudo':
+        response = ['Permission denied: user guest is not in sudoers file.'];
         break;
       case 'clear':
         setHistory([]);
@@ -94,67 +109,45 @@ export const TerminalApp = () => {
   };
 
   return (
-    <div className="w-full h-full bg-[#0a0d12] text-[#E8EDF2] flex flex-col justify-between p-4 pt-12 pb-6 overflow-hidden font-mono text-[12px]">
-      
-      {/* HEADER */}
-      <div className="flex items-center justify-between border-b border-[#1f2835] pb-3">
-        <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            onClick={closeApp}
-            className="w-8 h-8 rounded-full bg-[#151d26] border border-[#232f3e] text-[#9AA6B2] hover:text-[#E8EDF2] flex items-center justify-center transition-colors focus:outline-none"
-            aria-label="Back to Home"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-          </button>
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-[#7CF2C9] animate-pulse" />
-            <span className="text-[#7CF2C9] font-semibold text-[13px]">cli.yasar.dev</span>
-          </div>
+    <AppWindow title="Terminal" subtitle="Interactive CLI">
+      <div 
+        className="h-full flex flex-col justify-between font-mono text-[11.5px] cursor-text"
+        onClick={() => inputRef.current?.focus()}
+      >
+        <div className="space-y-1.5 leading-relaxed overflow-y-auto pr-1">
+          {history.map((line, i) => (
+            <div
+              key={i}
+              className={`${
+                line.type === 'cmd'
+                  ? 'text-[#7CF2C9] font-bold'
+                  : line.type === 'system'
+                  ? 'text-[#626e7e]'
+                  : 'text-[#C5CED8]'
+              }`}
+            >
+              {line.text}
+            </div>
+          ))}
+          <div ref={bottomRef} />
         </div>
 
-        <button
-          type="button"
-          onClick={() => { setHistory([]); playSound('tick', soundEnabled); }}
-          className="text-[10px] text-[#9AA6B2] hover:text-[#E8EDF2] px-2 py-1 bg-[#151d26] rounded border border-[#232f3e]"
-        >
-          Clear
-        </button>
+        {/* Input Line */}
+        <form onSubmit={handleCommand} className="flex items-center space-x-1.5 pt-3 mt-2 border-t border-[#1b222d]">
+          <span className="text-[#7CF2C9] font-bold shrink-0">&gt;</span>
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputVal}
+            onChange={(e) => setInputVal(e.target.value)}
+            placeholder="Type 'help'..."
+            className="flex-1 bg-transparent text-[#E8EDF2] focus:outline-none placeholder-[#3d4756] font-mono text-[11.5px]"
+            autoFocus
+          />
+        </form>
       </div>
-
-      {/* TERMINAL OUTPUT BUFFER */}
-      <div className="flex-1 overflow-y-auto no-scrollbar space-y-1 py-3 pr-1">
-        {history.map((line, idx) => (
-          <div
-            key={idx}
-            className={`${
-              line.type === 'cmd' 
-                ? 'text-[#7CF2C9] font-medium' 
-                : line.type === 'system' 
-                ? 'text-[#9AA6B2]' 
-                : 'text-[#C5CED8]'
-            } leading-relaxed`}
-          >
-            {line.text}
-          </div>
-        ))}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* CLI INPUT PROMPT */}
-      <form onSubmit={handleCommand} className="flex items-center space-x-2 border-t border-[#1f2835] pt-3">
-        <span className="text-[#7CF2C9] font-semibold">yasar@os:~$</span>
-        <input 
-          type="text" 
-          value={inputVal}
-          onChange={(e) => setInputVal(e.target.value)}
-          placeholder="type a command..."
-          className="flex-1 bg-transparent text-[#E8EDF2] focus:outline-none text-[12px] font-mono placeholder-[#4a586a]"
-          autoFocus
-        />
-      </form>
-
-    </div>
+    </AppWindow>
   );
 };
 
+export default TerminalApp;

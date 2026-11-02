@@ -342,7 +342,7 @@ export const SimpleApp = ({ appId }) => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-[12px]">
                   <span className="text-[#9AA6B2]">FIRMS Ingestion</span>
-                  <span className="font-mono text-[#7CF2C9] font-semibold">[N] pts/sec</span>
+                  <span className="font-mono text-[#7CF2C9] font-semibold">2,400 pts/sec</span>
                 </div>
                 <div className="w-full h-1.5 bg-[#1F2933] rounded-full overflow-hidden">
                   <div className="h-full bg-[#7CF2C9] rounded-full w-[82%]" />
@@ -350,7 +350,7 @@ export const SimpleApp = ({ appId }) => {
 
                 <div className="flex justify-between items-center text-[12px] pt-1">
                   <span className="text-[#9AA6B2]">OSM Node Match Rate</span>
-                  <span className="font-mono text-[#8AB4FF] font-semibold">[X]%</span>
+                  <span className="font-mono text-[#8AB4FF] font-semibold">94.2%</span>
                 </div>
                 <div className="w-full h-1.5 bg-[#1F2933] rounded-full overflow-hidden">
                   <div className="h-full bg-[#8AB4FF] rounded-full w-[94%]" />
@@ -358,7 +358,7 @@ export const SimpleApp = ({ appId }) => {
 
                 <div className="flex justify-between items-center text-[12px] pt-1">
                   <span className="text-[#9AA6B2]">Pipeline Latency</span>
-                  <span className="font-mono text-[#FFB86B] font-semibold">[N] ms</span>
+                  <span className="font-mono text-[#FFB86B] font-semibold">185 ms</span>
                 </div>
                 <div className="w-full h-1.5 bg-[#1F2933] rounded-full overflow-hidden">
                   <div className="h-full bg-[#FFB86B] rounded-full w-[45%]" />
