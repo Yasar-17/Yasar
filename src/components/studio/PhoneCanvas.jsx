@@ -41,7 +41,7 @@ export const FINISH_CONFIGS = {
 };
 
 export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFlipChange }) => {
-  const { activeGlyphPattern, triggerSnapshot } = usePhone();
+  const { isLocked, setIsLocked, activeGlyphPattern } = usePhone();
   const containerRef = useRef(null);
   const phoneAssemblyRef = useRef(null);
   const glyphMgrRef = useRef(null);
@@ -57,6 +57,12 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
   const pointerVelocityRef = useRef({ x: 0, y: 0 });
   const lastPointerPosRef = useRef({ x: 0, y: 0 });
   const lastTimeRef = useRef(0);
+  const flippedRef = useRef(flipped);
+  const mousePosRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    flippedRef.current = flipped;
+  }, [flipped]);
 
   // Sync Glyph Matrix pattern with PhoneContext
   useEffect(() => {
@@ -81,6 +87,18 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     const config = FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver;
     phoneAssemblyRef.current.updateFinish(config);
   }, [finish]);
+
+  // Mouse move listener for subtle environment lighting parallax
+  useEffect(() => {
+    const handleWindowMouseMove = (e) => {
+      mousePosRef.current = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1,
+      };
+    };
+    window.addEventListener('mousemove', handleWindowMouseMove);
+    return () => window.removeEventListener('mousemove', handleWindowMouseMove);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -107,7 +125,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     webglRenderer.setClearColor(0x000000, 0);
     webglRenderer.outputColorSpace = THREE.SRGBColorSpace;
     webglRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-    webglRenderer.toneMappingExposure = 1.05;
+    webglRenderer.toneMappingExposure = 1.1;
     webglRenderer.shadowMap.enabled = true;
     webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
     webglRenderer.domElement.className = "phone-canvas absolute inset-0 pointer-events-none";
@@ -120,9 +138,10 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     css3dRenderer.domElement.className = "phone-html absolute inset-0 pointer-events-none";
     container.appendChild(css3dRenderer.domElement);
 
-    // 3. Camera
+    // 3. Camera - Framed large and dominant in the viewport
+    const getCamZ = (w) => (w <= 480 ? 24 : w <= 768 ? 20.5 : 17.2);
     const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 100);
-    camera.position.set(0, 0, 19);
+    camera.position.set(0, 0, getCamZ(width));
 
     // 4. Scenes & Groups
     const webglScene = new THREE.Scene();
@@ -145,19 +164,18 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     surfaceDiv.style.isolation = "isolate";
 
     const css3dObject = new CSS3DObject(surfaceDiv);
-    // 372px x 0.01 = 3.72 units, 806px x 0.01 = 8.06 units
     css3dObject.scale.set(0.01, 0.01, 0.01);
     css3dObject.position.z = D / 2 + 0.018;
     css3dModelGroup.add(css3dObject);
 
     setSurfaceEl(surfaceDiv);
 
-    // 6. Lighting Setup (prsd.dev studio light rig)
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xb0a5a0, 0.75);
+    // 6. Studio Lighting Rig
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111620, 0.7);
     webglScene.add(hemiLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
-    keyLight.position.set(-3, 6, 9);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.85);
+    keyLight.position.set(-3.5, 6, 8.5);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024);
     keyLight.shadow.camera.left = -5;
@@ -168,12 +186,12 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     keyLight.shadow.normalBias = 0.008;
     webglScene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xffdfc4, 0.7);
-    fillLight.position.set(5, 1, 3);
+    const fillLight = new THREE.DirectionalLight(0xe8edf2, 0.75);
+    fillLight.position.set(4.5, 1.5, 3.5);
     webglScene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    rimLight.position.set(-2, 5, -7);
+    const rimLight = new THREE.DirectionalLight(0xf8fafc, 1.6);
+    rimLight.position.set(-2, 4.5, -6.5);
     webglScene.add(rimLight);
 
     // 7. Initialize Glyph Texture Manager & Build Modular Phone Assembly
@@ -187,12 +205,28 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     const phoneModelMesh = phoneAssembly.build(FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver);
     webglModelGroup.add(phoneModelMesh);
 
-    // 8. Render Loop with Smooth Spring & Inertia
+    // 8. Render Loop with Smooth Spring, Inertia, and Dynamic Environmental Lighting
     const lerp = (a, b, t) => a + (b - a) * t;
 
     const animate = (time) => {
-      // Update dynamic 137-LED Glyph Matrix texture
       glyphMgr.update(time);
+
+      // Subtle dynamic environmental lighting shifting with mouse coordinates
+      const mx = mousePosRef.current.x;
+      const my = mousePosRef.current.y;
+      keyLight.position.x = -3.5 + mx * 1.6;
+      keyLight.position.y = 6.0 + my * 1.4;
+      fillLight.position.x = 4.5 - mx * 1.2;
+      rimLight.position.x = -2.0 - mx * 1.0;
+
+      // When not dragging, apply subtle resting float and gentle mouse parallax
+      if (!isDraggingRef.current) {
+        const baseOffset = -0.045;
+        const baseYaw = flippedRef.current ? Math.PI + baseOffset : baseOffset;
+        const idleFloat = Math.sin(time * 0.0012) * 0.02;
+        targetRotRef.current.y = baseYaw + mx * 0.05 + idleFloat;
+        targetRotRef.current.x = -my * 0.04;
+      }
 
       // Smooth lerp rotation toward target
       rotRef.current.x = lerp(rotRef.current.x, targetRotRef.current.x, 0.12);
@@ -218,6 +252,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
       const w = container.clientWidth;
       const h = container.clientHeight;
       camera.aspect = w / h;
+      camera.position.z = getCamZ(w);
       camera.updateProjectionMatrix();
       webglRenderer.setSize(w, h);
       css3dRenderer.setSize(w, h);
@@ -239,7 +274,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     };
   }, []);
 
-  // Pointer event handlers for orbiting 3D phone
+  // Pointer event handlers for orbiting 3D phone and waking screen
   const handlePointerDown = (e) => {
     if (e.target.closest('button, a, input, textarea, [data-interactive="true"]')) {
       return;
@@ -263,7 +298,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     targetRotRef.current.y += dx * 0.008;
     targetRotRef.current.x += dy * 0.008;
 
-    targetRotRef.current.x = Math.max(-0.65, Math.min(0.65, targetRotRef.current.x));
+    targetRotRef.current.x = Math.max(-0.62, Math.min(0.62, targetRotRef.current.x));
 
     pointerVelocityRef.current = {
       x: (dx / dt) * 16,
@@ -274,13 +309,22 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     lastTimeRef.current = now;
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e) => {
     if (!isDraggingRef.current) return;
     isDraggingRef.current = false;
 
+    // Check if pointer gesture was a stationary tap/click to wake the screen
+    const dist = Math.hypot(
+      e.clientX - pointerStartRef.current.x,
+      e.clientY - pointerStartRef.current.y
+    );
+    if (dist < 6 && isLocked) {
+      setIsLocked(false);
+    }
+
     targetRotRef.current.y += pointerVelocityRef.current.x * 0.03;
     targetRotRef.current.x += pointerVelocityRef.current.y * 0.03;
-    targetRotRef.current.x = Math.max(-0.65, Math.min(0.65, targetRotRef.current.x));
+    targetRotRef.current.x = Math.max(-0.62, Math.min(0.62, targetRotRef.current.x));
   };
 
   const handleDoubleClick = () => {
@@ -299,10 +343,15 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     >
       {surfaceEl && ReactDOM.createPortal(children, surfaceEl)}
 
-      {/* Ground contact shadow */}
-      <div 
-        className="absolute left-1/2 bottom-[10%] -translate-x-1/2 w-[240px] h-[25px] rounded-full bg-[#000000] opacity-40 blur-[20px] pointer-events-none" 
-      />
+      {/* Multi-Tier Ambient Ground Contact Shadow */}
+      <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 pointer-events-none flex flex-col items-center">
+        {/* Core contact shadow */}
+        <div className="w-[320px] h-[16px] rounded-full bg-black opacity-75 blur-[10px]" />
+        {/* Soft mid penumbra */}
+        <div className="w-[480px] h-[36px] -mt-2 rounded-full bg-black opacity-45 blur-[26px]" />
+        {/* Studio ambient ground floor */}
+        <div className="w-[660px] h-[65px] -mt-5 rounded-full bg-black opacity-20 blur-[45px]" />
+      </div>
 
       {/* Fallback if WebGL unavailable */}
       {glError && (
@@ -313,3 +362,5 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     </div>
   );
 };
+
+export default PhoneCanvas;
