@@ -76,3 +76,4 @@ export const StatusBar = ({ variant = 'light', showDynamicIsland = true }) => {
 };
 
 export default StatusBar;
+

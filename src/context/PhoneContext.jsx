@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { playSound } from '../audio/soundEngine';
+import { glyphController } from '../components/glyph/glyphController';
 
 const PhoneContext = createContext(null);
 
@@ -11,7 +12,7 @@ export const PhoneProvider = ({ children }) => {
   const [isQuickPanelOpen, setIsQuickPanelOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [rotation, setRotation] = useState({ x: -6, y: 12 });
-  const [activeWallpaper, setActiveWallpaper] = useState('warm-copper');
+  const [activeWallpaper, setActiveWallpaper] = useState('obsidian');
   const [activeGlyphPattern, setActiveGlyphPattern] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isSnapshotting, setIsSnapshotting] = useState(false);
@@ -22,12 +23,26 @@ export const PhoneProvider = ({ children }) => {
     setActiveApp(appId);
     setIsDrawerOpen(false);
     setIsQuickPanelOpen(false);
+
+    // Phase 4: Portfolio Glyph Matrix Interactions
+    if (appId === 'projects') {
+      glyphController.playPattern('projects', 2500, 'idle');
+    } else if (appId === 'about') {
+      glyphController.playPattern('about', 2500, 'idle');
+    } else if (appId === 'contact') {
+      glyphController.playPattern('contact', 2500, 'idle');
+    } else {
+      glyphController.playPattern('progress', 1800, 'idle');
+    }
   }, [soundEnabled]);
 
   const closeApp = useCallback(() => {
     playSound('click', soundEnabled);
     setActiveApp(null);
     setAppOriginRect(null);
+
+    // Phase 4: Return home to subtle idle breathing animation
+    glyphController.setPattern('idle');
   }, [soundEnabled]);
 
   const toggleDrawer = useCallback(() => {
@@ -49,7 +64,15 @@ export const PhoneProvider = ({ children }) => {
 
   const toggleLock = useCallback(() => {
     playSound('power', soundEnabled);
-    setIsLocked(prev => !prev);
+    setIsLocked((prev) => {
+      const next = !prev;
+      if (next) {
+        glyphController.powerOff();
+      } else {
+        glyphController.powerOn();
+      }
+      return next;
+    });
     setActiveApp(null);
     setIsDrawerOpen(false);
     setIsQuickPanelOpen(false);
@@ -63,7 +86,12 @@ export const PhoneProvider = ({ children }) => {
 
   const cycleGlyph = useCallback(() => {
     playSound('tick', soundEnabled);
-    setActiveGlyphPattern(prev => (prev + 1) % 3);
+    const patterns = ['idle', 'projects', 'about', 'contact', 'progress', 'equalizer'];
+    setActiveGlyphPattern((prev) => {
+      const next = (prev + 1) % patterns.length;
+      glyphController.setPattern(patterns[next]);
+      return next;
+    });
   }, [soundEnabled]);
 
   const resetRotation = useCallback(() => {
@@ -74,6 +102,7 @@ export const PhoneProvider = ({ children }) => {
   const triggerSnapshot = useCallback(() => {
     playSound('shutter', soundEnabled);
     setIsSnapshotting(true);
+    glyphController.playPattern('notification', 600, 'idle');
     setTimeout(() => {
       setIsSnapshotting(false);
     }, 400);
@@ -143,3 +172,4 @@ export const usePhone = () => {
   return context;
 };
 
+export default PhoneContext;

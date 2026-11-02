@@ -1,10 +1,12 @@
 import * as THREE from 'three';
+import { GLYPH_LEDS, TOTAL_LEDS } from '../glyph/glyphPatterns';
+import { glyphController } from '../glyph/glyphController';
 
-const GRID_SIZE = 11;
 const CANVAS_SIZE = 512;
 
 export class GlyphTextureManager {
-  constructor() {
+  constructor(controller = glyphController) {
+    this.controller = controller;
     this.canvas = document.createElement('canvas');
     this.canvas.width = CANVAS_SIZE;
     this.canvas.height = CANVAS_SIZE;
@@ -16,61 +18,33 @@ export class GlyphTextureManager {
     this.texture.minFilter = THREE.LinearMipmapLinearFilter;
     this.texture.magFilter = THREE.LinearFilter;
 
-    this.frame = 0;
-    this.activePattern = 0;
     this.lastRenderTime = 0;
+    this.isDirty = true;
+
+    // Subscribe to controller brightness updates
+    this.unsubscribe = this.controller.subscribe(() => {
+      this.isDirty = true;
+    });
 
     this.render();
   }
 
-  setPattern(patternIndex) {
-    this.activePattern = patternIndex % 3;
-    this.render();
-  }
-
-  isLedOn(row, col, frame) {
-    const cx = (GRID_SIZE - 1) / 2;
-    const cy = (GRID_SIZE - 1) / 2;
-    const dist = Math.hypot(col - cx, row - cy);
-
-    if (dist > 5.1) return false;
-
-    if (this.activePattern === 0) {
-      // Audio Waveform Equalizer
-      const heights = [
-        Math.sin(frame * 0.35 + 0) * 2.5 + 3.2,
-        Math.sin(frame * 0.35 + 1) * 3.5 + 4.2,
-        Math.sin(frame * 0.35 + 2) * 4.5 + 5.2,
-        Math.sin(frame * 0.35 + 3) * 5.0 + 5.5,
-        Math.sin(frame * 0.35 + 4) * 4.2 + 4.5,
-        Math.sin(frame * 0.35 + 5) * 3.5 + 4.0,
-        Math.sin(frame * 0.35 + 6) * 4.8 + 5.2,
-        Math.sin(frame * 0.35 + 7) * 3.8 + 4.2,
-        Math.sin(frame * 0.35 + 8) * 2.5 + 3.2,
-        Math.sin(frame * 0.35 + 9) * 2.0 + 2.5,
-        Math.sin(frame * 0.35 + 10) * 1.5 + 2.0,
-      ];
-      const h = heights[col] || 3;
-      const distFromCenterY = Math.abs(row - cy);
-      return distFromCenterY <= h / 2;
-    } else if (this.activePattern === 1) {
-      // Radar sweep
-      const waveRadius = (frame % 16) * 0.38;
-      return Math.abs(dist - waveRadius) < 0.85;
+  setPattern(patternIndexOrName) {
+    if (typeof patternIndexOrName === 'string') {
+      this.controller.setPattern(patternIndexOrName);
     } else {
-      // Sparkle Cross
-      const isCross = (Math.abs(row - cy) < 1.1) || (Math.abs(col - cx) < 1.1);
-      const isDiag = Math.abs(Math.abs(row - cy) - Math.abs(col - cx)) < 1.1;
-      return (frame % 12 < 6 ? isCross : isDiag) && dist < 4.2;
+      const patterns = ['idle', 'projects', 'about', 'contact', 'progress', 'equalizer'];
+      this.controller.setPattern(patterns[patternIndexOrName % patterns.length]);
     }
   }
 
   update(time) {
-    if (time - this.lastRenderTime > 110) {
-      this.frame++;
-      this.lastRenderTime = time;
+    // Drive the physics and animation loop of the 137 LEDs
+    const changed = this.controller.update(time);
+    if (changed || this.isDirty) {
       this.render();
       this.texture.needsUpdate = true;
+      this.isDirty = false;
     }
   }
 
@@ -78,49 +52,79 @@ export class GlyphTextureManager {
     const { ctx, canvas } = this;
     const w = canvas.width;
     const h = canvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const radius = w * 0.46;
 
-    // Dark circular aperture background
+    // 1. Dark Circular Aperture Chamber
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#0a0d12';
     ctx.beginPath();
-    ctx.arc(w / 2, h / 2, w / 2 - 4, 0, Math.PI * 2);
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();
 
-    // Subtle track border
-    ctx.strokeStyle = '#222b37';
-    ctx.lineWidth = 6;
+    // 2. CNC Chamfered Outer Bezel Ring
+    ctx.strokeStyle = '#1b222c';
+    ctx.lineWidth = 8;
     ctx.stroke();
 
-    const cellSize = (w * 0.72) / GRID_SIZE;
-    const ledSize = cellSize * 0.72;
-    const startX = (w - GRID_SIZE * cellSize) / 2;
-    const startY = (h - GRID_SIZE * cellSize) / 2;
+    ctx.strokeStyle = '#283445';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
-        const cx = (GRID_SIZE - 1) / 2;
-        const cy = (GRID_SIZE - 1) / 2;
-        if (Math.hypot(c - cx, r - cy) > 5.1) continue;
+    // 3. Render Each of the 137 Discrete Mini-LED Elements
+    const leds = GLYPH_LEDS;
+    const brightnessArray = this.controller.getBrightnessArray();
+    const cellSize = (w * 0.74) / 13;
+    const diodeSize = cellSize * 0.72;
 
-        const x = startX + c * cellSize + (cellSize - ledSize) / 2;
-        const y = startY + r * cellSize + (cellSize - ledSize) / 2;
+    for (let i = 0; i < TOTAL_LEDS; i++) {
+      const led = leds[i];
+      const brightness = brightnessArray[i] || 0.0;
 
-        const on = this.isLedOn(r, c, this.frame);
+      // Coordinate mapping from normalized [-1, 1] to canvas pixel space
+      const px = cx + (led.col * cellSize);
+      const py = cy + (led.row * cellSize);
 
-        if (on) {
-          ctx.save();
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 14;
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(x, y, ledSize, ledSize);
-          ctx.restore();
-        } else {
-          ctx.fillStyle = '#161d26';
-          ctx.fillRect(x, y, ledSize, ledSize);
-          ctx.strokeStyle = '#25303e';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(x, y, ledSize, ledSize);
-        }
+      const x = px - diodeSize / 2;
+      const y = py - diodeSize / 2;
+
+      if (brightness > 0.04) {
+        // Active Illuminated Diode with Realistic Diffusion and Restrained Brightness
+        ctx.save();
+
+        // Layer 1: Soft Ambient Phosphor Halo Falloff
+        const glowRadius = diodeSize * (1.2 + brightness * 0.8);
+        const glowGrad = ctx.createRadialGradient(px, py, diodeSize * 0.2, px, py, glowRadius);
+        glowGrad.addColorStop(0, `rgba(255, 255, 255, ${brightness * 0.75})`);
+        glowGrad.addColorStop(0.5, `rgba(240, 245, 255, ${brightness * 0.3})`);
+        glowGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(px, py, glowRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Layer 2: Core Square Diode with Subtle Corner Radius
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1.0, 0.4 + brightness * 0.6)})`;
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 8 * brightness;
+
+        ctx.beginPath();
+        ctx.roundRect(x, y, diodeSize, diodeSize, 2);
+        ctx.fill();
+
+        ctx.restore();
+      } else {
+        // Unlit Silicon Diode
+        ctx.fillStyle = '#141a22';
+        ctx.beginPath();
+        ctx.roundRect(x, y, diodeSize, diodeSize, 1.5);
+        ctx.fill();
+
+        ctx.strokeStyle = '#202936';
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
     }
   }
@@ -130,7 +134,7 @@ export class GlyphTextureManager {
   }
 
   dispose() {
+    if (this.unsubscribe) this.unsubscribe();
     this.texture.dispose();
   }
 }
-

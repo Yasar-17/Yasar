@@ -1,96 +1,249 @@
-import React, { useState, useEffect } from 'react';
-import { usePhone } from '../../context/PhoneContext';
+import React, { useRef, useEffect, useState } from 'react';
+import { TOTAL_LEDS, GLYPH_LEDS } from './glyphPatterns';
+import { glyphController } from './glyphController';
+import { PowerIcon, SparklesIcon } from '../../ui/Icons';
 
-// 11 cols x 11 rows circular matrix grid (~97 active LED positions within circular crop)
-const GRID_SIZE = 11;
+export const GlyphMatrix = ({
+  size = 180,
+  interactive = true,
+  showControls = true,
+  className = '',
+}) => {
+  const canvasRef = useRef(null);
+  const [activePattern, setActivePattern] = useState(glyphController.activePattern);
+  const [brightness, setBrightness] = useState(glyphController.getGlobalBrightness());
+  const [isPowerOn, setIsPowerOn] = useState(glyphController.isPoweredOn);
 
-export const GlyphMatrix = () => {
-  const { activeGlyphPattern, cycleGlyph } = usePhone();
-  const [frame, setFrame] = useState(0);
-
+  // Render loop directly updating canvas without causing React state updates on every frame
   useEffect(() => {
-    const timer = setInterval(() => {
-      setFrame(f => (f + 1) % 60);
-    }, 120);
-    return () => clearInterval(timer);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let animId;
+
+    const render = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = w * 0.46;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Dark Circular Aperture Background
+      ctx.fillStyle = '#0a0d12';
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Circular Chamfer Border
+      ctx.strokeStyle = '#1e2633';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // 2. Render 137 Mini-LED Elements
+      const leds = GLYPH_LEDS;
+      const brightnessArray = glyphController.getBrightnessArray();
+      const cellSize = (w * 0.74) / 13;
+      const diodeSize = cellSize * 0.72;
+
+      for (let i = 0; i < TOTAL_LEDS; i++) {
+        const led = leds[i];
+        const b = brightnessArray[i] || 0.0;
+
+        const px = cx + led.col * cellSize;
+        const py = cy + led.row * cellSize;
+        const x = px - diodeSize / 2;
+        const y = py - diodeSize / 2;
+
+        if (b > 0.04) {
+          ctx.save();
+          // Soft ambient phosphor halo
+          const glowRadius = diodeSize * (1.2 + b * 0.8);
+          const grad = ctx.createRadialGradient(px, py, diodeSize * 0.2, px, py, glowRadius);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${b * 0.8})`);
+          grad.addColorStop(0.5, `rgba(240, 245, 255, ${b * 0.3})`);
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(px, py, glowRadius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Core Diode
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1.0, 0.4 + b * 0.6)})`;
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 6 * b;
+          ctx.beginPath();
+          ctx.roundRect(x, y, diodeSize, diodeSize, 1.5);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#141a22';
+          ctx.beginPath();
+          ctx.roundRect(x, y, diodeSize, diodeSize, 1.5);
+          ctx.fill();
+
+          ctx.strokeStyle = '#1e2633';
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+    };
   }, []);
 
-  // Compute LED brightness (true/false) based on pattern and animation frame
-  const isLedOn = (row, col) => {
-    const cx = (GRID_SIZE - 1) / 2;
-    const cy = (GRID_SIZE - 1) / 2;
-    const dist = Math.hypot(col - cx, row - cy);
+  // Handle pointer interactions for activating individual LEDs
+  const handlePointerAction = (e) => {
+    if (!interactive) return;
 
-    // Keep within circular crop
-    if (dist > 5.1) return false;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    if (activeGlyphPattern === 0) {
-      // Audio Waveform Equalizer
-      const heights = [
-        Math.sin(frame * 0.4 + 0) * 2.5 + 3,
-        Math.sin(frame * 0.4 + 1) * 3.5 + 4,
-        Math.sin(frame * 0.4 + 2) * 4.5 + 5,
-        Math.sin(frame * 0.4 + 3) * 5.0 + 5.5,
-        Math.sin(frame * 0.4 + 4) * 4.2 + 4.5,
-        Math.sin(frame * 0.4 + 5) * 3.5 + 4,
-        Math.sin(frame * 0.4 + 6) * 4.8 + 5,
-        Math.sin(frame * 0.4 + 7) * 3.8 + 4,
-        Math.sin(frame * 0.4 + 8) * 2.5 + 3,
-        Math.sin(frame * 0.4 + 9) * 2.0 + 2.5,
-        Math.sin(frame * 0.4 + 10) * 1.5 + 2,
-      ];
-      const h = heights[col] || 3;
-      const distFromCenterY = Math.abs(row - cy);
-      return distFromCenterY <= h / 2;
-    } else if (activeGlyphPattern === 1) {
-      // Expanding Radar Pulse
-      const waveRadius = (frame % 15) * 0.4;
-      return Math.abs(dist - waveRadius) < 0.85;
-    } else {
-      // Geometric Sparkle Cross
-      const isCross = (Math.abs(row - cy) < 1.1) || (Math.abs(col - cx) < 1.1);
-      const isDiagonal = Math.abs(Math.abs(row - cy) - Math.abs(col - cx)) < 1.1;
-      return (frame % 10 < 5 ? isCross : isDiagonal) && dist < 4.2;
+    const rect = canvas.getBoundingClientRect();
+    const scale = canvas.width / rect.width;
+    const clickX = (e.clientX - rect.left) * scale;
+    const clickY = (e.clientY - rect.top) * scale;
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const cellSize = (canvas.width * 0.74) / 13;
+
+    // Find closest LED
+    let closestId = -1;
+    let minDist = 9999;
+
+    for (let i = 0; i < TOTAL_LEDS; i++) {
+      const led = GLYPH_LEDS[i];
+      const px = cx + led.col * cellSize;
+      const py = cy + led.row * cellSize;
+      const d = Math.hypot(clickX - px, clickY - py);
+      if (d < minDist && d < cellSize * 0.9) {
+        minDist = d;
+        closestId = i;
+      }
+    }
+
+    if (closestId !== -1) {
+      glyphController.setLed(closestId, 1.0);
     }
   };
 
+  const handleSelectPattern = (pattern) => {
+    glyphController.setPattern(pattern);
+    setActivePattern(pattern);
+    setIsPowerOn(pattern !== 'off');
+  };
+
+  const handleTogglePower = () => {
+    glyphController.togglePower();
+    setIsPowerOn(glyphController.isPoweredOn);
+    setActivePattern(glyphController.activePattern);
+  };
+
+  const handleBrightnessChange = (e) => {
+    const val = parseFloat(e.target.value);
+    glyphController.setGlobalBrightness(val);
+    setBrightness(val);
+  };
+
   return (
-    <div 
-      onClick={cycleGlyph}
-      className="relative w-[114px] h-[114px] rounded-full bg-[#0a0d11] border-[2px] border-[#222a35] shadow-[inset_0_2px_8px_rgba(0,0,0,0.9),0_0_12px_rgba(0,0,0,0.5)] flex items-center justify-center cursor-pointer overflow-hidden p-2 group"
-      title="Glyph Matrix: Tap to cycle dynamic animation pattern"
-    >
-      {/* Subtle circular grid track highlight */}
-      <div className="absolute inset-1 rounded-full border border-white/5 pointer-events-none" />
+    <div className={`flex flex-col items-center space-y-3 select-none font-sans ${className}`}>
+      {/* 137-LED Matrix Canvas Display */}
+      <div 
+        className="relative rounded-full p-2 bg-[#0c1015] border border-[#1f2835] shadow-2xl flex items-center justify-center cursor-crosshair group"
+        onPointerDown={handlePointerAction}
+        onPointerMove={(e) => { if (e.buttons === 1) handlePointerAction(e); }}
+        title="137-LED Glyph Matrix: Click or drag to activate individual diodes"
+      >
+        <canvas
+          ref={canvasRef}
+          width={size * 2}
+          height={size * 2}
+          style={{ width: `${size}px`, height: `${size}px` }}
+          className="rounded-full"
+        />
 
-      {/* Mini-LED Grid */}
-      <div className="grid grid-cols-11 gap-[3.5px] items-center justify-center">
-        {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, i) => {
-          const row = Math.floor(i / GRID_SIZE);
-          const col = i % GRID_SIZE;
-          const cx = (GRID_SIZE - 1) / 2;
-          const cy = (GRID_SIZE - 1) / 2;
-          const dist = Math.hypot(col - cx, row - cy);
-
-          if (dist > 5.1) {
-            return <div key={i} className="w-[5.5px] h-[5.5px] opacity-0" />;
-          }
-
-          const on = isLedOn(row, col);
-
-          return (
-            <div
-              key={i}
-              className={`w-[5.5px] h-[5.5px] rounded-[1px] transition-all duration-100 ${
-                on
-                  ? 'bg-white shadow-[0_0_5px_#ffffff,0_0_10px_rgba(255,255,255,0.7)] scale-105'
-                  : 'bg-[#151c24] border border-[#212b37]'
-              }`}
-            />
-          );
-        })}
+        {/* Outer CNC chamfer highlight */}
+        <div className="absolute inset-1 rounded-full border border-white/5 pointer-events-none" />
       </div>
+
+      {/* Hardware Matrix Controls Toolbar */}
+      {showControls && (
+        <div className="w-full max-w-xs flex flex-col space-y-2.5 bg-[#121620] border border-[#1f2633] rounded-2xl p-3 shadow-lg">
+          <div className="flex items-center justify-between border-b border-[#1b222d] pb-2">
+            <div className="flex items-center space-x-1.5 font-mono text-xs text-[#E8EDF2] font-bold">
+              <SparklesIcon className="w-3.5 h-3.5 text-[#7CF2C9]" />
+              <span>137-LED Matrix</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleTogglePower}
+              className={`p-1.5 rounded-lg border transition-colors ${
+                isPowerOn
+                  ? 'bg-[#1a2330] border-[#7CF2C9] text-[#7CF2C9]'
+                  : 'bg-[#151a22] border-[#232c3a] text-[#626e7e]'
+              }`}
+              title={isPowerOn ? 'Power Off' : 'Power On'}
+              aria-label="Toggle Matrix Power"
+            >
+              <PowerIcon className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Interactive Pattern Selectors */}
+          <div className="flex flex-wrap gap-1">
+            {[
+              { id: 'idle', label: 'Idle' },
+              { id: 'projects', label: 'Projects' },
+              { id: 'about', label: 'About' },
+              { id: 'contact', label: 'Contact' },
+              { id: 'progress', label: 'Progress' },
+              { id: 'notification', label: 'Strobe' },
+            ].map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => handleSelectPattern(p.id)}
+                className={`px-2.5 py-1 rounded-lg font-mono text-[10px] transition-all ${
+                  activePattern === p.id && isPowerOn
+                    ? 'bg-[#232d3d] text-[#7CF2C9] font-bold border border-[#2b374a]'
+                    : 'bg-[#151a22] text-[#9AA6B2] hover:text-[#E8EDF2] border border-transparent'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Master Luminance Slider */}
+          <div className="flex items-center space-x-2 pt-1">
+            <span className="font-mono text-[10px] text-[#626e7e] uppercase shrink-0">Luminance</span>
+            <input
+              type="range"
+              min="0.1"
+              max="1.0"
+              step="0.05"
+              value={brightness}
+              onChange={handleBrightnessChange}
+              className="flex-1 accent-[#7CF2C9] cursor-pointer h-1.5"
+            />
+            <span className="font-mono text-[10px] text-[#7CF2C9] w-7 text-right">
+              {Math.round(brightness * 100)}%
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
+export default GlyphMatrix;
