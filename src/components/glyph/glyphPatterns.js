@@ -154,3 +154,4 @@ export const PATTERN_GENERATORS = {
     return 0.08;
   },
 };
+

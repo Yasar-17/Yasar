@@ -181,3 +181,4 @@ export class GlyphController {
 // Global shared singleton controller for hardware sync
 export const glyphController = new GlyphController();
 export default glyphController;
+

@@ -149,6 +149,8 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
     const webglModelGroup = new THREE.Group();
     const css3dModelGroup = new THREE.Group();
+    webglModelGroup.position.y = 0.38;
+    css3dModelGroup.position.y = 0.38;
     webglScene.add(webglModelGroup);
     css3dScene.add(css3dModelGroup);
 
@@ -344,7 +346,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
       {surfaceEl && ReactDOM.createPortal(children, surfaceEl)}
 
       {/* Multi-Tier Ambient Ground Contact Shadow */}
-      <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 pointer-events-none flex flex-col items-center">
+      <div className="absolute left-1/2 bottom-[11%] -translate-x-1/2 pointer-events-none flex flex-col items-center">
         {/* Core contact shadow */}
         <div className="w-[320px] h-[16px] rounded-full bg-black opacity-75 blur-[10px]" />
         {/* Soft mid penumbra */}
