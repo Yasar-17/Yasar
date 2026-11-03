@@ -87,7 +87,7 @@ export const HomeScreen = () => {
           </span>
           <div className="flex items-center space-x-1.5 text-[10px] font-mono text-[#7CF2C9]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9] animate-pulse" />
-            <span>IST · Chennai</span>
+            <span>IST · Bengaluru</span>
           </div>
         </div>
 

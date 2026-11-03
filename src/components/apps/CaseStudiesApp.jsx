@@ -113,6 +113,28 @@ export const CaseStudiesApp = () => {
                 <span className="font-mono text-sm font-bold text-[#8AB4FF]">{detectionLatencyMs} ms</span>
               </div>
             </div>
+
+            <div className="pt-2 border-t border-[#1f2633] flex items-center justify-between">
+              <a
+                href="https://frontend-two-coral-68.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono text-[#7CF2C9] hover:underline flex items-center space-x-1"
+              >
+                <span>Live Prototype</span>
+                <ExternalLinkIcon className="w-3.5 h-3.5" />
+              </a>
+
+              <a
+                href="https://github.com/Yasar-17/SIH-26"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1.5 text-xs font-mono text-[#9AA6B2] hover:text-[#E8EDF2] transition-colors"
+              >
+                <GithubIcon className="w-3.5 h-3.5" />
+                <span>SIH-26 Repo</span>
+              </a>
+            </div>
           </div>
         </div>
       )}
@@ -156,6 +178,18 @@ export const CaseStudiesApp = () => {
             <p className="text-[11px] text-[#626e7e]">
               Zero cumulative layout shifts (CLS &lt; 0.01) across 20+ mobile device viewports.
             </p>
+            <div className="pt-2 border-t border-[#1f2633] flex items-center justify-between">
+              <a
+                href="https://zennystudios.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono text-[#7CF2C9] hover:underline flex items-center space-x-1"
+              >
+                <span>Live Client Site</span>
+                <ExternalLinkIcon className="w-3.5 h-3.5" />
+              </a>
+              <span className="font-mono text-[10px] text-[#626e7e]">Production Deployment</span>
+            </div>
           </div>
         </div>
       )}

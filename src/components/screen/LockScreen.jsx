@@ -3,6 +3,7 @@ import { usePhone } from '../../context/PhoneContext';
 import { StatusBar } from './StatusBar';
 import { ChevronUpIcon, SparklesIcon, CheckIcon } from '../../ui/Icons';
 import { playSound } from '../../audio/soundEngine';
+import { PROFILE, PROJECTS } from '../../data';
 
 export const LockScreen = () => {
   const { setIsLocked, openApp, soundEnabled } = usePhone();
@@ -53,7 +54,7 @@ export const LockScreen = () => {
       <div className="flex flex-col items-center text-center mt-6 z-10">
         <div className="flex items-center space-x-2 text-[11px] tracking-widest text-[#7CF2C9] uppercase font-mono">
           <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9] animate-pulse" />
-          <span>Available for opportunities</span>
+          <span>{PROFILE.availability}</span>
         </div>
 
         {/* Large Digital Clock */}
@@ -93,9 +94,9 @@ export const LockScreen = () => {
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center space-x-2">
               <span className="w-2 h-2 rounded-full bg-[#FFB86B]" />
-              <span className="text-xs font-mono font-bold text-[#E8EDF2]">SIH26162 Classifier</span>
+              <span className="text-xs font-mono font-bold text-[#E8EDF2]">SIH-26 Classifier</span>
             </div>
-            <span className="text-[10px] font-mono text-[#626e7e]">Telemetry Pipeline</span>
+            <span className="text-[10px] font-mono text-[#626e7e]">National Finalist</span>
           </div>
           <p className="text-xs text-[#9AA6B2] leading-snug">
             NASA satellite thermal feed filtered with 84.6% false-alarm reduction.

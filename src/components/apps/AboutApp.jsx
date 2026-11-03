@@ -1,7 +1,8 @@
 import React from 'react';
 import { usePhone } from '../../context/PhoneContext';
 import { AppWindow } from '../screen/AppWindow';
-import { UserIcon, FileTextIcon, MailIcon, ExternalLinkIcon } from '../../ui/Icons';
+import { UserIcon, FileTextIcon, MailIcon, CheckIcon, SparklesIcon } from '../../ui/Icons';
+import { PROFILE, EDUCATION } from '../../data';
 
 export const AboutApp = () => {
   const { openApp } = usePhone();
@@ -16,100 +17,98 @@ export const AboutApp = () => {
         <div className="flex flex-col overflow-hidden">
           <div className="flex items-center space-x-2">
             <h3 className="font-grotesk text-base font-bold text-[#F0F4F8] leading-tight truncate">
-              Mohammed Yasar
+              {PROFILE.name}
             </h3>
-            <span className="w-2 h-2 rounded-full bg-[#7CF2C9] shrink-0" title="Available for opportunities" />
+            <span className="w-2 h-2 rounded-full bg-[#7CF2C9] shrink-0" title={PROFILE.availability} />
           </div>
           <span className="font-mono text-xs text-[#7CF2C9] tracking-tight">
-            Data Analyst & Builder
+            {PROFILE.headline}
           </span>
           <span className="font-mono text-[11px] text-[#626e7e] mt-0.5">
-            Chennai, IN · 3rd-Yr B.Tech AI & Data Science
+            {PROFILE.location}
           </span>
         </div>
       </div>
 
-      {/* 2. Engineering Philosophy */}
+      {/* 2. Interests Section */}
+      <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2.5">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#7CF2C9] font-semibold block">
+          Core Interests
+        </span>
+        <div className="flex flex-wrap gap-1.5">
+          {PROFILE.interests.map((interest, idx) => (
+            <div
+              key={idx}
+              className="flex items-center space-x-1.5 bg-[#0e1219] border border-[#1b222d] px-2.5 py-1 rounded-xl text-xs font-mono text-[#E8EDF2]"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9]" />
+              <span>{interest}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Biography & Background */}
       <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
         <span className="font-mono text-[10px] uppercase tracking-wider text-[#FFB86B] font-semibold block">
-          Core Philosophy
+          Background
         </span>
-        <h4 className="font-grotesk text-sm font-bold text-[#E8EDF2]">
-          Empirical Rigor Over Hype
-        </h4>
-        <p className="text-xs text-[#9AA6B2] leading-relaxed">
-          I build high-performance computational systems that translate noisy, real-world data into clear, reliable insights. Whether building predictive wildfire anomaly classifiers or engineering real-time 3D web applications, every interaction is built with precision, speed, and tactile craft.
+        <p className="text-xs text-[#C5CED8] leading-relaxed">
+          {PROFILE.aboutText}
         </p>
       </div>
 
-      {/* 3. Three Core Pillars */}
+      {/* 4. Disciplines */}
       <div className="space-y-2">
         <span className="font-mono text-[10px] uppercase tracking-widest text-[#626e7e] px-1 block">
-          Key Disciplines
+          Key Focus Areas
         </span>
 
         <div className="grid grid-cols-1 gap-2">
-          {/* Pillar 1 */}
-          <div className="bg-[#12161f] border border-[#1f2633] rounded-[18px] p-3 flex items-start space-x-3">
-            <span className="font-mono text-xs text-[#7CF2C9] font-bold mt-0.5">01</span>
-            <div>
-              <h5 className="font-mono text-xs font-bold text-[#E8EDF2]">Data Analytics & ML</h5>
-              <p className="text-[11px] text-[#9AA6B2] leading-snug mt-0.5">
-                Geospatial extraction, anomaly classification, telemetry noise suppression, exploratory data analysis.
-              </p>
+          {PROFILE.disciplines.map((disc) => (
+            <div key={disc.number} className="bg-[#12161f] border border-[#1f2633] rounded-[18px] p-3 flex items-start space-x-3">
+              <span className="font-mono text-xs text-[#7CF2C9] font-bold mt-0.5">{disc.number}</span>
+              <div>
+                <h5 className="font-mono text-xs font-bold text-[#E8EDF2]">{disc.title}</h5>
+                <p className="text-[11px] text-[#9AA6B2] leading-snug mt-0.5">
+                  {disc.description}
+                </p>
+              </div>
             </div>
-          </div>
-
-          {/* Pillar 2 */}
-          <div className="bg-[#12161f] border border-[#1f2633] rounded-[18px] p-3 flex items-start space-x-3">
-            <span className="font-mono text-xs text-[#8AB4FF] font-bold mt-0.5">02</span>
-            <div>
-              <h5 className="font-mono text-xs font-bold text-[#E8EDF2]">3D & Interactive Web</h5>
-              <p className="text-[11px] text-[#9AA6B2] leading-snug mt-0.5">
-                Three.js, WebGL shader pipelines, CSS3DRenderer, spring physics, and fluid responsive UI architectures.
-              </p>
-            </div>
-          </div>
-
-          {/* Pillar 3 */}
-          <div className="bg-[#12161f] border border-[#1f2633] rounded-[18px] p-3 flex items-start space-x-3">
-            <span className="font-mono text-xs text-[#FFB86B] font-bold mt-0.5">03</span>
-            <div>
-              <h5 className="font-mono text-xs font-bold text-[#E8EDF2]">Systems & Automation</h5>
-              <p className="text-[11px] text-[#9AA6B2] leading-snug mt-0.5">
-                REST APIs, pipeline scripts, Web Audio procedural synthesis, and production Vite/React architectures.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* 4. Quick Specs */}
+      {/* 5. Verified Credentials & Facts */}
       <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
         <span className="font-mono text-[10px] uppercase tracking-wider text-[#626e7e] font-semibold block">
-          Quick Facts
+          Academic & Location Details
         </span>
         <div className="space-y-1.5 font-mono text-xs text-[#9AA6B2]">
           <div className="flex justify-between py-1 border-b border-[#1f2633]">
-            <span>Current Status</span>
-            <span className="text-[#E8EDF2]">3rd-Year Undergraduate</span>
+            <span>Status</span>
+            <span className="text-[#E8EDF2]">{EDUCATION.status}</span>
           </div>
           <div className="flex justify-between py-1 border-b border-[#1f2633]">
             <span>Degree</span>
-            <span className="text-[#E8EDF2]">B.Tech AI & Data Science</span>
+            <span className="text-[#E8EDF2]">{EDUCATION.shortDegree}</span>
           </div>
           <div className="flex justify-between py-1 border-b border-[#1f2633]">
-            <span>Primary Languages</span>
-            <span className="text-[#7CF2C9]">Python, SQL, JavaScript</span>
+            <span>Institution</span>
+            <span className="text-[#E8EDF2] text-right text-[11px]">CAHCET (Anna University)</span>
+          </div>
+          <div className="flex justify-between py-1 border-b border-[#1f2633]">
+            <span>Academic Standing</span>
+            <span className="text-[#7CF2C9] font-bold">GPA: {EDUCATION.gpa}</span>
           </div>
           <div className="flex justify-between py-1">
             <span>Location</span>
-            <span className="text-[#E8EDF2]">Chennai, India</span>
+            <span className="text-[#E8EDF2]">{PROFILE.location}</span>
           </div>
         </div>
       </div>
 
-      {/* 5. Navigation Buttons */}
+      {/* 6. Navigation Triggers */}
       <div className="grid grid-cols-2 gap-2 pt-1">
         <button
           type="button"
@@ -134,4 +133,3 @@ export const AboutApp = () => {
 };
 
 export default AboutApp;
-

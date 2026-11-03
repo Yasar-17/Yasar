@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePhone } from '../../context/PhoneContext';
 import { PhoneCanvas, FINISH_CONFIGS } from './PhoneCanvas';
+import { PROFILE } from '../../data';
 import { 
   RotateIcon, 
   VolumeIcon, 
@@ -132,7 +133,7 @@ export const PocketStudio = () => {
             YASAR.DEV
           </button>
           <span className="font-mono text-[10px] text-[#626e7e] tracking-widest uppercase mt-0.5">
-            Data Analyst & Builder
+            {PROFILE.role}
           </span>
         </div>
 
@@ -144,7 +145,7 @@ export const PocketStudio = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7CF2C9] opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#7CF2C9]" />
             </span>
-            <span className="tracking-wide">Available for opportunities</span>
+            <span className="tracking-wide">{PROFILE.availability}</span>
           </div>
 
           {/* Minimal Menu Trigger */}
@@ -308,18 +309,18 @@ export const PocketStudio = () => {
             <div className="border-t border-[#1f2633] pt-5 space-y-3 font-mono text-xs text-[#9AA6B2]">
               <div className="flex items-center justify-between">
                 <span className="text-[#626e7e]">STATUS</span>
-                <span className="text-[#7CF2C9]">Available for opportunities</span>
+                <span className="text-[#7CF2C9]">{PROFILE.availability}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[#626e7e]">LOCATION</span>
-                <span>Chennai, IN</span>
+                <span>{PROFILE.location}</span>
               </div>
               <div className="pt-2">
                 <a
-                  href="mailto:mohammedyasar990@gmail.com"
+                  href={`mailto:${PROFILE.email}`}
                   className="flex items-center justify-between text-[#C5CED8] hover:text-[#7CF2C9] transition-colors bg-[#151a22] p-2.5 rounded-lg border border-[#232b36]"
                 >
-                  <span className="text-xs">mohammedyasar990@gmail.com</span>
+                  <span className="text-xs">{PROFILE.email}</span>
                   <ExternalLinkIcon className="w-3.5 h-3.5" />
                 </a>
               </div>

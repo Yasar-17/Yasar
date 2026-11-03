@@ -1,59 +1,23 @@
 import React, { useState } from 'react';
 import { AppWindow } from '../screen/AppWindow';
-import { CpuIcon, BarChartIcon, GitBranchIcon } from '../../ui/Icons';
-
-const SKILLS_DATA = [
-  {
-    category: 'data',
-    title: 'Data Science & Machine Learning',
-    description: 'Statistical modeling, telemetry parsing, predictive anomaly classification, geospatial data extraction.',
-    skills: [
-      { name: 'Python', level: 'Advanced', tags: ['NumPy', 'Pandas', 'Scikit-Learn'] },
-      { name: 'SQL', level: 'Advanced', tags: ['Complex Queries', 'PostgreSQL', 'Aggregation'] },
-      { name: 'Geospatial Telemetry', level: 'Intermediate', tags: ['NASA FIRMS', 'OpenStreetMap', 'GIS'] },
-      { name: 'Data Visualization', level: 'Advanced', tags: ['Matplotlib', 'Seaborn', 'Telemetry Plots'] },
-    ],
-  },
-  {
-    category: 'frontend',
-    title: 'Frontend & 3D Web Graphics',
-    description: 'Hardware-accelerated WebGL pipelines, 3D CSS stages, reactive micro-frontends, spring physics.',
-    skills: [
-      { name: 'React 18', level: 'Advanced', tags: ['Custom Hooks', 'Context API', 'Performance'] },
-      { name: 'Three.js & R3F', level: 'Advanced', tags: ['WebGL', 'PBR Shaders', 'CSS3DRenderer', 'Drei'] },
-      { name: 'Tailwind CSS', level: 'Advanced', tags: ['Design Systems', 'Responsive', 'Custom Utility'] },
-      { name: 'Framer Motion', level: 'Advanced', tags: ['Spring Transitions', 'Gestures', 'Layout Animation'] },
-    ],
-  },
-  {
-    category: 'backend',
-    title: 'Backend, Systems & DevOps',
-    description: 'Server pipelines, automated build scripts, version control, and procedural audio synthesis.',
-    skills: [
-      { name: 'Node.js & Express', level: 'Intermediate', tags: ['RESTful APIs', 'Middleware', 'JSON Schemas'] },
-      { name: 'Git & GitHub', level: 'Advanced', tags: ['Branch Strategy', 'CI/CD Pipelines', 'Actions'] },
-      { name: 'Linux / Bash', level: 'Intermediate', tags: ['Shell Scripting', 'Systemd', 'Vim'] },
-      { name: 'Web Audio API', level: 'Intermediate', tags: ['Procedural Synthesizers', 'Haptics'] },
-    ],
-  },
-];
+import { SKILL_CATEGORIES } from '../../data';
 
 export const SkillsApp = () => {
-  const [filter, setFilter] = useState('all'); // 'all' | 'data' | 'frontend' | 'backend'
+  const [filter, setFilter] = useState('all');
 
   const filteredData = filter === 'all'
-    ? SKILLS_DATA
-    : SKILLS_DATA.filter((item) => item.category === filter);
+    ? SKILL_CATEGORIES
+    : SKILL_CATEGORIES.filter((item) => item.category === filter);
 
   return (
-    <AppWindow title="Skills" subtitle="Technical Proficiencies">
+    <AppWindow title="Skills" subtitle="Verified Technical Capabilities">
       {/* Category Tabs */}
       <div className="flex items-center space-x-1.5 bg-[#141820] border border-[#232c3a] rounded-xl p-1 mb-1">
         {[
           { id: 'all', label: 'All' },
           { id: 'data', label: 'Data & ML' },
           { id: 'frontend', label: 'Frontend & 3D' },
-          { id: 'backend', label: 'Systems' },
+          { id: 'backend', label: 'Tools & SQL' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -111,4 +75,3 @@ export const SkillsApp = () => {
 };
 
 export default SkillsApp;
-
