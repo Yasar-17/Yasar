@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { usePhone } from '../../context/PhoneContext';
 import { StatusBar } from './StatusBar';
 import { AppIcon } from './AppIcon';
+import { PROFILE } from '../../data';
+import { GITHUB_ACTIVITY } from '../../data/githubContributions';
 import { 
   UserIcon, 
   FolderIcon, 
@@ -12,13 +14,14 @@ import {
   TerminalIcon, 
   SettingsIcon, 
   GithubIcon, 
-  MailIcon 
+  MailIcon,
+  ExternalLinkIcon 
 } from '../../ui/Icons';
 
 export const HomeScreen = () => {
-  const { activeWallpaper } = usePhone();
-  const [time, setTime] = useState('10:30');
-  const [dateInfo, setDateInfo] = useState({ day: 'MON', date: '02', month: 'NOV' });
+  const { activeWallpaper, openApp } = usePhone();
+  const [time, setTime] = useState('16:20');
+  const [dateInfo, setDateInfo] = useState({ day: 'TUE', date: '03', month: 'NOV', year: '2026' });
 
   useEffect(() => {
     const updateTime = () => {
@@ -33,6 +36,7 @@ export const HomeScreen = () => {
         day: days[now.getDay()],
         date: String(now.getDate()).padStart(2, '0'),
         month: months[now.getMonth()],
+        year: String(now.getFullYear()),
       });
     };
     updateTime();
@@ -57,12 +61,12 @@ export const HomeScreen = () => {
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col justify-between ${getWallpaperClass()} text-[#E8EDF2] p-3 sm:p-4 pt-1.5 pb-2 sm:pb-3 safe-bottom select-none overflow-hidden transition-colors duration-500 font-sans`}>
+    <div className={`relative w-full h-full flex flex-col justify-between ${getWallpaperClass()} text-[#E8EDF2] p-3 sm:p-3.5 pt-1 pb-2 safe-bottom select-none overflow-hidden transition-colors duration-500 font-sans`}>
       
       {/* 1. Status Bar */}
       <StatusBar />
 
-      {/* Subtle Monochrome Grid Background */}
+      {/* Subtle Environmental Grid Texture */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.035]"
         style={{
@@ -74,50 +78,70 @@ export const HomeScreen = () => {
         }}
       />
 
-      {/* 2. Clock & Date Bento Widgets */}
-      <div className="relative z-10 grid grid-cols-2 gap-2 sm:gap-2.5 mt-1 sm:mt-2 mb-1">
+      {/* 2. TOP BENTO WIDGETS SECTION (prsd.dev style adapted for Nothing OS) */}
+      <div className="relative z-10 home-widgets my-0.5">
         
-        {/* Widget 1: Digital Clock Widget */}
-        <div className="bg-[#121620]/90 border border-[#202937] rounded-[22px] sm:rounded-[24px] p-2.5 sm:p-3.5 shadow-md flex flex-col justify-between">
-          <span className="font-mono text-[9px] sm:text-[10px] text-[#626e7e] uppercase tracking-wider">
-            LOCAL TIME
-          </span>
-          <span className="font-mono text-[26px] sm:text-[32px] md:text-[34px] font-bold text-[#F0F4F8] leading-none tracking-tight my-1">
-            {time}
-          </span>
-          <div className="flex items-center space-x-1.5 text-[9px] sm:text-[10px] font-mono text-[#7CF2C9]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9] animate-pulse" />
-            <span>IST · Bengaluru</span>
-          </div>
-        </div>
-
-        {/* Widget 2: Date & Status Widget */}
-        <div className="bg-[#121620]/90 border border-[#202937] rounded-[22px] sm:rounded-[24px] p-2.5 sm:p-3.5 shadow-md flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9px] sm:text-[10px] text-[#626e7e] uppercase tracking-wider">
-              CALENDAR
-            </span>
-            <span className="w-2 h-2 rounded-full bg-[#FF453A]" />
+        {/* Widget A: GitHub 16-Week Activity Heatmap */}
+        <button
+          type="button"
+          onClick={() => openApp('github')}
+          className="github-widget text-left group cursor-pointer focus:outline-none"
+          aria-label={`GitHub contributions, 16 weeks ending today. Total ${GITHUB_ACTIVITY.totalContributions} contributions.`}
+        >
+          <div className="github-widget-heading">
+            <GithubIcon className="w-3.5 h-3.5 text-[#E8EDF2] group-hover:text-[#7CF2C9] transition-colors" />
+            <span className="font-mono tracking-tight text-[#E8EDF2] group-hover:text-white">GitHub Activity</span>
+            <small>16 wks · @{GITHUB_ACTIVITY.username}</small>
           </div>
 
-          <div className="flex items-baseline space-x-1.5 my-1">
-            <span className="font-mono text-[26px] sm:text-[30px] md:text-[32px] font-bold text-[#F0F4F8] leading-none">
-              {dateInfo.date}
+          {/* 16-Week Heatmap Grid (112 tiles) */}
+          <div className="contribution-grid" aria-hidden="true">
+            {GITHUB_ACTIVITY.days.map((d) => (
+              <i 
+                key={d.date} 
+                data-level={d.level} 
+                title={`${d.date}: ${d.level > 0 ? `${d.level * 2} commits` : 'No contributions'}`}
+              />
+            ))}
+          </div>
+        </button>
+
+        {/* Widgets Row B: Local Time Widget + Availability / Quick Contact Widget */}
+        <div className="widgets-row">
+          
+          {/* Sub-widget 1: Bengaluru Local Time */}
+          <div className="time-widget">
+            <span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9] animate-pulse shrink-0" />
+              <span>IST · Bengaluru</span>
             </span>
-            <span className="font-mono text-xs font-bold text-[#7CF2C9]">
-              {dateInfo.day}
-            </span>
+            <strong>{time}</strong>
+            <small>{dateInfo.day}, {dateInfo.month} {dateInfo.date}</small>
           </div>
 
-          <span className="font-mono text-[9px] sm:text-[10px] text-[#9AA6B2] uppercase tracking-wider">
-            {dateInfo.month} 2026
-          </span>
+          {/* Sub-widget 2: Availability & Direct Contact Trigger */}
+          <button
+            type="button"
+            onClick={() => openApp('contact')}
+            className="call-widget focus:outline-none group"
+            aria-label="Direct contact and availability status"
+          >
+            <div className="call-head">
+              <span className="call-badge">Status</span>
+              <small>Available</small>
+            </div>
+            <div className="call-event">
+              <strong>Open for roles</strong>
+              <span>AI/ML & Frontend</span>
+            </div>
+          </button>
+
         </div>
 
       </div>
 
       {/* 3. 8 Nothing-Inspired Monochrome App Icons Grid */}
-      <div className="relative z-10 grid grid-cols-4 gap-y-2.5 sm:gap-y-3.5 gap-x-1.5 sm:gap-x-2 px-1 my-auto">
+      <nav className="relative z-10 grid grid-cols-4 gap-y-2 gap-x-1.5 px-0.5 my-auto" aria-label="Applications">
         <AppIcon id="about" label="About" icon={UserIcon} />
         <AppIcon id="projects" label="Projects" icon={FolderIcon} badge />
         <AppIcon id="skills" label="Skills" icon={CpuIcon} />
@@ -126,21 +150,15 @@ export const HomeScreen = () => {
         <AppIcon id="resume" label="Resume" icon={FileTextIcon} />
         <AppIcon id="terminal" label="Terminal" icon={TerminalIcon} />
         <AppIcon id="settings" label="Settings" icon={SettingsIcon} />
-      </div>
+      </nav>
 
-      {/* 4. App Page Indicators */}
-      <div className="relative z-10 flex items-center justify-center space-x-1.5 my-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-white" />
-        <span className="w-1.5 h-1.5 rounded-full bg-white/25" />
-      </div>
-
-      {/* 5. Minimal Dock with 4 Core Apps */}
-      <div className="relative z-10 bg-[#121620]/80 backdrop-blur-md border border-[#202937] rounded-[24px] sm:rounded-[26px] p-1.5 sm:p-2 px-2.5 sm:px-3 shadow-lg flex items-center justify-around">
+      {/* 4. Minimal Dock with 4 Core Apps */}
+      <nav className="relative z-10 bg-[#121620]/80 backdrop-blur-md border border-[#202937] rounded-[24px] sm:rounded-[26px] p-1.5 px-2.5 shadow-lg flex items-center justify-around" aria-label="Quick Dock">
         <AppIcon id="terminal" label="CLI" icon={TerminalIcon} shape="circle" />
         <AppIcon id="projects" label="Work" icon={FolderIcon} shape="circle" />
         <AppIcon id="github" label="GitHub" icon={GithubIcon} shape="circle" />
         <AppIcon id="contact" label="Contact" icon={MailIcon} shape="circle" badge />
-      </div>
+      </nav>
 
     </div>
   );

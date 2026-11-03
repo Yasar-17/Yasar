@@ -6,10 +6,6 @@ import {
   RotateIcon, 
   VolumeIcon, 
   VolumeMuteIcon, 
-  ExternalLinkIcon,
-  MenuIcon,
-  CloseIcon,
-  ArrowRightIcon,
   ArrowLeftIcon
 } from '../../ui/Icons';
 import { HomeScreen } from '../screen/HomeScreen';
@@ -37,7 +33,6 @@ export const PocketStudio = () => {
   const [flipped, setFlipped] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [show3DOnMobile, setShow3DOnMobile] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mouseEnv, setMouseEnv] = useState({ x: 50, y: 45 });
 
   // Sync wallpaper when finish changes
@@ -189,230 +184,125 @@ export const PocketStudio = () => {
   }
 
   // ---------------------------------------------------------------------------
-  // DESKTOP & TABLET EXPERIENCE: Full 3D Pocket Studio Stage
+  // DESKTOP EXPERIENCE: Exact prsd.dev Pocket Studio Architecture adapted for Nothing Phone (4a) Pro
   // ---------------------------------------------------------------------------
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#090b0e] text-[#E8EDF2] font-sans antialiased select-none flex flex-col justify-between">
+    <main className="pocket-studio studio-dark select-none">
       
-      {/* 1. Subtle Environmental Lighting (Deep Graphite to Almost-Black, responds to mouse) */}
+      {/* 1. Subtle Environmental Background Lighting */}
       <div 
         className="absolute inset-0 pointer-events-none transition-all duration-500 ease-out"
         style={{
-          background: `radial-gradient(circle 880px at ${mouseEnv.x}% ${mouseEnv.y}%, rgba(32, 41, 54, 0.45) 0%, rgba(13, 16, 21, 0.85) 55%, rgba(9, 11, 14, 1) 100%)`,
+          background: `radial-gradient(circle 900px at ${mouseEnv.x}% ${mouseEnv.y}%, rgba(28, 36, 48, 0.45) 0%, rgba(13, 16, 22, 0.88) 55%, rgba(10, 12, 16, 1) 100%)`,
         }}
       />
 
-      {/* 2. Restrained Texture Overlay (Ultra-fine 24px industrial grid) */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.035]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '24px 24px',
-        }}
-      />
-
-      {/* TOP BAR: Clean, supporting elements only */}
-      <header className="relative z-30 flex items-center justify-between px-8 sm:px-12 pt-7 pointer-events-auto">
-        {/* TOP LEFT: YASAR.DEV */}
-        <div className="flex flex-col">
-          <button
-            type="button"
-            onClick={() => {
-              closeApp();
-              setFlipped(false);
-            }}
-            className="text-left font-mono text-base sm:text-lg font-bold tracking-[0.22em] text-[#E8EDF2] hover:text-[#7CF2C9] transition-colors cursor-pointer focus:outline-none"
-          >
-            YASAR.DEV
-          </button>
-          <span className="font-mono text-[10px] text-[#626e7e] tracking-widest uppercase mt-0.5">
-            {PROFILE.role}
-          </span>
-        </div>
-
-        {/* TOP RIGHT: Available for opportunities + Minimal menu */}
-        <div className="flex items-center space-x-5 sm:space-x-7">
-          {/* Availability Status Badge */}
-          <div className="hidden sm:flex items-center space-x-2 text-xs font-mono text-[#9AA6B2]">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7CF2C9] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#7CF2C9]" />
-            </span>
-            <span className="tracking-wide">{PROFILE.availability}</span>
-          </div>
-
-          {/* Minimal Menu Trigger */}
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen(true)}
-            className="flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-[#151a22]/80 hover:bg-[#1f2633] border border-[#232b36] hover:border-[#374457] text-xs font-mono text-[#E8EDF2] hover:text-[#7CF2C9] transition-all shadow-sm"
-            aria-label="Open minimal menu"
-          >
-            <MenuIcon className="w-3.5 h-3.5 text-[#9AA6B2]" />
-            <span>Menu</span>
-          </button>
-        </div>
-      </header>
-
-      {/* CENTRE: 3D Smartphone - Dominating the Screen, Large & Visually Impressive */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
-        <PhoneCanvas finish={finish} flipped={flipped} onFlipChange={setFlipped}>
-          {renderPhoneScreen()}
-        </PhoneCanvas>
+      {/* 2. TOP-LEFT: Finish Picker (Exact prsd.dev radio swatches) */}
+      <div className="finish-picker" role="radiogroup" aria-label="Phone colour">
+        {Object.keys(FINISH_CONFIGS).map((key) => {
+          const cfg = FINISH_CONFIGS[key];
+          const isSelected = finish === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              aria-label={cfg.name}
+              title={cfg.name}
+              onClick={() => handleFinishChange(key)}
+            >
+              <i style={{ background: cfg.swatch }} />
+            </button>
+          );
+        })}
       </div>
 
-      {/* BOTTOM: "An interactive portfolio." + "Drag to explore. Tap to unlock." */}
-      <footer className="relative z-30 flex flex-col items-center mb-6 pointer-events-auto px-6 text-center">
-        <p className="font-grotesk text-sm sm:text-base font-medium text-[#C5CED8] tracking-tight">
-          An interactive portfolio.
-        </p>
-        <p className="font-mono text-[11px] text-[#626e7e] tracking-widest uppercase mt-1">
-          {isLocked ? 'Drag to explore. Tap to unlock.' : 'Drag to explore. Tap apps to navigate.'}
-        </p>
+      {/* 3. RIGHT SIDE: Studio Navigation (Exact prsd.dev typography & section links) */}
+      <nav className="studio-nav" aria-label="Portfolio sections">
+        <button
+          type="button"
+          className="studio-nav-name"
+          onClick={() => {
+            closeApp();
+            setFlipped(false);
+          }}
+          aria-label="Close the open app and return to the home screen"
+          aria-current={!activeApp ? 'page' : undefined}
+        >
+          {PROFILE.name.toUpperCase()}
+        </button>
+        <span className="studio-nav-role">{PROFILE.role}</span>
 
-        {/* Minimalist Device Hardware Controls Pill */}
-        <div className="flex items-center space-x-1.5 mt-3 bg-[#131720]/80 backdrop-blur-md border border-[#232b36] rounded-full p-1 shadow-lg">
-          <button
-            type="button"
-            onClick={() => setFlipped(!flipped)}
-            className="flex items-center space-x-2 text-[11px] font-mono text-[#E8EDF2] hover:text-[#7CF2C9] px-3.5 py-1 rounded-full hover:bg-white/5 transition-all"
-          >
-            <RotateIcon className="w-3.5 h-3.5" />
-            <span>{flipped ? 'Front' : 'Rear'}</span>
-          </button>
+        <ul>
+          {[
+            ['projects', 'Projects'],
+            ['experience', 'Experience'],
+            ['about', 'About'],
+            ['contact', 'Contact'],
+          ].map(([id, label]) => {
+            const isCurrent = activeApp === id;
+            return (
+              <li key={id}>
+                <button
+                  type="button"
+                  onClick={() => openApp(id)}
+                  aria-current={isCurrent ? 'page' : undefined}
+                >
+                  {label}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
-          <div className="w-[1px] h-3 bg-[#232b36]" />
+      {/* 4. CENTRE: 3D Phone World & Stage */}
+      <div 
+        className="phone-world"
+        aria-label={`Interactive Nothing Phone (4a) Pro ${FINISH_CONFIGS[finish]?.name || 'Silver'} portfolio`}
+      >
+        <div className="phone-stage">
+          <PhoneCanvas finish={finish} flipped={flipped} onFlipChange={setFlipped}>
+            {renderPhoneScreen()}
+          </PhoneCanvas>
+        </div>
+      </div>
 
-          <button
-            type="button"
-            onClick={() => { setFlipped(false); }}
-            className="text-[11px] font-mono text-[#9AA6B2] hover:text-[#E8EDF2] px-3 py-1 rounded-full hover:bg-white/5 transition-colors"
-          >
-            Reset
-          </button>
-
-          <div className="w-[1px] h-3 bg-[#232b36]" />
-
-          <button
-            type="button"
-            onClick={triggerSnapshot}
-            className="text-[11px] font-mono text-[#FFB86B] hover:text-[#ffd29d] px-2.5 py-1 rounded-full hover:bg-white/5 transition-colors"
-            title="Camera Shutter"
-            aria-label="Camera Shutter"
-          >
-            Snapshot
-          </button>
-
-          <div className="w-[1px] h-3 bg-[#232b36]" />
-
+      {/* 5. BOTTOM: Studio Footer (Exact prsd.dev instructions & keyboard controls) */}
+      <footer className="studio-footer">
+        <span>Drag to rotate. Arrow keys to orbit.</span>
+        
+        <span className="flex items-center space-x-2">
+          <span>
+            <kbd>Space</kbd> or click to wake
+          </span>
+          <span>·</span>
+          <span>
+            <kbd>Esc</kbd> to close
+          </span>
+          <span>·</span>
           <button
             type="button"
             onClick={toggleSound}
-            className="text-[#9AA6B2] hover:text-[#E8EDF2] px-2.5 py-1 rounded-full hover:bg-white/5 transition-colors"
-            title={soundEnabled ? 'Mute' : 'Unmute'}
-            aria-label="Toggle Sound"
+            className="hover:text-white transition-colors cursor-pointer"
+            title={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
           >
-            {soundEnabled ? <VolumeIcon className="w-3.5 h-3.5 text-[#7CF2C9]" /> : <VolumeMuteIcon className="w-3.5 h-3.5" />}
+            {soundEnabled ? 'Sound on' : 'Sound muted'}
           </button>
-        </div>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setFlipped(!flipped)}
+            className="hover:text-white transition-colors cursor-pointer"
+            title="Inspect front or rear"
+          >
+            {flipped ? 'Show front' : 'Inspect rear'}
+          </button>
+        </span>
       </footer>
 
-      {/* MINIMAL SLIDE-OVER MENU (Clean, never obstructs when closed) */}
-      {isMenuOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-sm transition-opacity"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <div 
-            className="w-full max-w-sm h-full bg-[#0d1016]/98 border-l border-[#232b36] p-8 flex flex-col justify-between shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Menu Header */}
-            <div className="flex items-center justify-between border-b border-[#1f2633] pb-5">
-              <div className="flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-[#7CF2C9]" />
-                <span className="font-mono text-xs uppercase tracking-widest text-[#9AA6B2]">
-                  PORTFOLIO INDEX
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsMenuOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-white/5 text-[#9AA6B2] hover:text-[#E8EDF2] transition-colors"
-                aria-label="Close menu"
-              >
-                <CloseIcon className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Navigation Links */}
-            <nav className="my-auto py-6">
-              <ul className="flex flex-col space-y-4">
-                {[
-                  { id: 'projects', number: '01', title: 'Projects', desc: 'Featured applications & client systems' },
-                  { id: 'case-studies', number: '02', title: 'Case Studies', desc: 'SIH wildfire classifier & analytics' },
-                  { id: 'terminal', number: '03', title: 'Terminal', desc: 'Interactive developer console' },
-                  { id: 'resume', number: '04', title: 'Resume', desc: 'Background, stack & credentials' },
-                  { id: 'contact', number: '05', title: 'Contact', desc: 'Direct communication link' },
-                ].map((item) => (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsLocked(false);
-                        openApp(item.id);
-                        setIsMenuOpen(false);
-                      }}
-                      className="w-full text-left group flex items-start justify-between p-3 rounded-xl hover:bg-[#151a22] transition-all border border-transparent hover:border-[#232b36]"
-                    >
-                      <div className="flex flex-col">
-                        <div className="flex items-center space-x-3">
-                          <span className="font-mono text-xs text-[#7CF2C9] opacity-70 group-hover:opacity-100">
-                            {item.number}
-                          </span>
-                          <span className="font-grotesk text-lg font-bold text-[#E8EDF2] group-hover:text-[#7CF2C9] transition-colors">
-                            {item.title}
-                          </span>
-                        </div>
-                        <span className="font-mono text-[11px] text-[#626e7e] mt-1 pl-7">
-                          {item.desc}
-                        </span>
-                      </div>
-                      <ArrowRightIcon className="w-4 h-4 text-[#626e7e] group-hover:text-[#7CF2C9] group-hover:translate-x-1 transition-all mt-1 opacity-0 group-hover:opacity-100" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
-            {/* Menu Footer */}
-            <div className="border-t border-[#1f2633] pt-5 space-y-3 font-mono text-xs text-[#9AA6B2]">
-              <div className="flex items-center justify-between">
-                <span className="text-[#626e7e]">STATUS</span>
-                <span className="text-[#7CF2C9]">{PROFILE.availability}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#626e7e]">LOCATION</span>
-                <span>{PROFILE.location}</span>
-              </div>
-              <div className="pt-2">
-                <a
-                  href={`mailto:${PROFILE.email}`}
-                  className="flex items-center justify-between text-[#C5CED8] hover:text-[#7CF2C9] transition-colors bg-[#151a22] p-2.5 rounded-lg border border-[#232b36]"
-                >
-                  <span className="text-xs">{PROFILE.email}</span>
-                  <ExternalLinkIcon className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
+    </main>
   );
 };
 

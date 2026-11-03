@@ -220,6 +220,8 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     const phoneModelMesh = phoneAssembly.build(FINISH_CONFIGS[finish] || FINISH_CONFIGS.silver);
     webglModelGroup.add(phoneModelMesh);
 
+    const snapYaw = (y) => Math.round(y / Math.PI) * Math.PI - 0.045;
+
     // 8. Render Loop with Smooth Spring, Inertia, and Dynamic Environmental Lighting
     const lerp = (a, b, t) => a + (b - a) * t;
 
@@ -237,7 +239,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
       glyphMgr.update(time);
 
-      // Subtle dynamic environmental lighting shifting with mouse coordinates
+      // Dynamic environmental lighting shifting with mouse coordinates
       const mx = mousePosRef.current.x;
       const my = mousePosRef.current.y;
       keyLight.position.x = -3.5 + mx * 1.6;
@@ -245,24 +247,28 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
       fillLight.position.x = 4.5 - mx * 1.2;
       rimLight.position.x = -2.0 - mx * 1.0;
 
-      // When not dragging, apply subtle resting float and gentle mouse parallax
+      // When dragging is idle, apply gentle resting float and mouse parallax
+      let targetX = targetRotRef.current.x;
+      let targetY = targetRotRef.current.y;
       if (!isDraggingRef.current) {
-        const baseOffset = -0.045;
-        const baseYaw = flippedRef.current ? Math.PI + baseOffset : baseOffset;
-        const idleFloat = Math.sin(time * 0.0012) * 0.02;
-        targetRotRef.current.y = baseYaw + mx * 0.05 + idleFloat;
-        targetRotRef.current.x = -my * 0.04;
+        targetX += -my * 0.045;
+        targetY += mx * 0.065;
       }
 
-      // Smooth lerp rotation toward target
-      rotRef.current.x = lerp(rotRef.current.x, targetRotRef.current.x, 0.12);
-      rotRef.current.y = lerp(rotRef.current.y, targetRotRef.current.y, 0.12);
+      // Smooth lerp rotation toward target (spring-like response)
+      rotRef.current.x = lerp(rotRef.current.x, targetX, 0.14);
+      rotRef.current.y = lerp(rotRef.current.y, targetY, 0.14);
 
       webglModelGroup.rotation.x = rotRef.current.x;
       webglModelGroup.rotation.y = rotRef.current.y;
 
       css3dModelGroup.rotation.x = rotRef.current.x;
       css3dModelGroup.rotation.y = rotRef.current.y;
+
+      // Exact prsd.dev backface visibility culling
+      const isFaceFront = Math.cos(rotRef.current.y) * Math.cos(rotRef.current.x) > 0.08;
+      surfaceDiv.style.visibility = isFaceFront ? 'visible' : 'hidden';
+      surfaceDiv.inert = !isFaceFront;
 
       webglRenderer.render(webglScene, camera);
       css3dRenderer.render(css3dScene, camera);
@@ -301,6 +307,43 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     };
   }, []);
 
+  const snapYaw = (y) => Math.round(y / Math.PI) * Math.PI - 0.045;
+
+  // Keyboard arrow keys direct orbit controls (prsd.dev feature)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const next = snapYaw(targetRotRef.current.y - Math.PI);
+        targetRotRef.current.y = next;
+        targetRotRef.current.x = 0;
+        if (onFlipChange) onFlipChange(Math.cos(next) < 0);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = snapYaw(targetRotRef.current.y + Math.PI);
+        targetRotRef.current.y = next;
+        targetRotRef.current.x = 0;
+        if (onFlipChange) onFlipChange(Math.cos(next) < 0);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        targetRotRef.current.x = Math.max(-0.42, targetRotRef.current.x - 0.15);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        targetRotRef.current.x = Math.min(0.42, targetRotRef.current.x + 0.15);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        targetRotRef.current.y = -0.045;
+        targetRotRef.current.x = 0;
+        if (onFlipChange) onFlipChange(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onFlipChange]);
+
   // Pointer event handlers for orbiting 3D phone and waking screen
   const handlePointerDown = (e) => {
     if (e.target.closest('button, a, input, textarea, [data-interactive="true"]')) {
@@ -325,7 +368,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     targetRotRef.current.y += dx * 0.008;
     targetRotRef.current.x += dy * 0.008;
 
-    targetRotRef.current.x = Math.max(-0.62, Math.min(0.62, targetRotRef.current.x));
+    targetRotRef.current.x = Math.max(-0.55, Math.min(0.55, targetRotRef.current.x));
 
     pointerVelocityRef.current = {
       x: (dx / dt) * 16,
@@ -349,9 +392,16 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
       setIsLocked(false);
     }
 
-    targetRotRef.current.y += pointerVelocityRef.current.x * 0.03;
-    targetRotRef.current.x += pointerVelocityRef.current.y * 0.03;
-    targetRotRef.current.x = Math.max(-0.62, Math.min(0.62, targetRotRef.current.x));
+    // Exact prsd.dev coasting and magnetic face settling
+    const projectedYaw = targetRotRef.current.y + pointerVelocityRef.current.x * 0.035;
+    const settledYaw = snapYaw(projectedYaw);
+    targetRotRef.current.y = settledYaw;
+    targetRotRef.current.x = 0;
+
+    const isFacingRear = Math.cos(settledYaw) < 0;
+    if (onFlipChange) {
+      onFlipChange(isFacingRear);
+    }
   };
 
   const handleDoubleClick = () => {
