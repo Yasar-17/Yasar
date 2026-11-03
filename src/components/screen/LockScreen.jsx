@@ -50,11 +50,22 @@ export const LockScreen = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      handleUnlock();
+    }
+  };
+
   return (
     <div 
       id="lockScreen"
-      className="relative w-full h-full bg-[#080b10] text-[#E8EDF2] flex flex-col justify-between p-4 pt-1.5 pb-4 safe-bottom select-none cursor-pointer overflow-hidden font-sans"
+      tabIndex={0}
+      role="button"
+      aria-label="Lock screen. Press Enter, Space, or tap to unlock."
+      className="relative w-full h-full bg-[#080b10] text-[#E8EDF2] flex flex-col justify-between p-4 pt-1.5 pb-4 safe-bottom select-none cursor-pointer overflow-hidden font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7CF2C9] focus-visible:ring-inset"
       onClick={handleUnlock}
+      onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >

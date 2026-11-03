@@ -34,7 +34,7 @@
   }
 
   /* Keyboard accessibility focus rings */
-  button:focus-visible, a:focus-visible, input:focus-visible {
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
     outline: 2px solid #7CF2C9;
     outline-offset: 2px;
   }

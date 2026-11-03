@@ -30,7 +30,7 @@ export const PROJECTS = [
     desc: 'AI-based detection and classification of industrial fires and persistent thermal sources using NASA FIRMS satellite telemetry (MODIS/VIIRS), OpenStreetMap spatial vector topology, and machine learning classifiers.',
     technologies: ['Python', 'NASA FIRMS API', 'OpenStreetMap', 'Scikit-Learn', 'Pandas', 'GIS'],
     repoUrl: 'https://github.com/Yasar-17/SIH-26',
-    liveUrl: 'https://frontend-two-coral-68.vercel.app',
+    liveUrl: null, // Ephemeral Vercel preview (frontend-two-coral-68.vercel.app) expired
     featured: true,
     highlights: [
       'Ingests live thermal brightness temperature feeds from NASA FIRMS.',
