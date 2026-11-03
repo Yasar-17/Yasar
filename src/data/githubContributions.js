@@ -101,3 +101,4 @@ export const generateContributions = () => {
 };
 
 export const GITHUB_ACTIVITY = generateContributions();
+

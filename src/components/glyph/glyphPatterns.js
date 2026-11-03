@@ -153,5 +153,34 @@ export const PATTERN_GENERATORS = {
     }
     return 0.08;
   },
+
+  // 9. Solar Path Pattern: Smooth solar arc across upper dome
+  solarPath: (led, t) => {
+    // Sun position traversing from left (-1) to right (+1) in an arc
+    const sunX = Math.sin(t * 0.8) * 0.85;
+    const sunY = Math.cos(t * 0.8) * 0.5 + 0.3;
+    const distToSun = Math.hypot(led.x - sunX, led.y - sunY);
+    if (distToSun < 0.28) return Math.max(0.2, 1.0 - (distToSun / 0.28));
+    // Horizon glow
+    if (Math.abs(led.y) < 0.15) return 0.25;
+    return 0.05;
+  },
+
+  // 10. Camera Countdown Timer: 3s radial countdown with capture flash
+  cameraTimer: (led, t, options = {}) => {
+    const elapsed = options.elapsed || 0;
+    if (elapsed > 3.0) {
+      // Shutter flash
+      const flashFade = Math.max(0, 1.0 - (elapsed - 3.0) * 4);
+      return flashFade;
+    }
+    const remain = 3.0 - elapsed;
+    const frac = remain / 3.0;
+    let normAngle = (Math.PI / 2 - led.angle);
+    if (normAngle < 0) normAngle += Math.PI * 2;
+    const angleFrac = normAngle / (Math.PI * 2);
+    if (angleFrac <= frac) return 0.95;
+    return 0.05;
+  },
 };
 

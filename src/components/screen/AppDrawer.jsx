@@ -3,7 +3,7 @@ import { usePhone } from '../../context/PhoneContext';
 import { 
   SearchIcon, CloseIcon,
   FolderIcon, BookOpenIcon, CpuIcon, BriefcaseIcon, FileTextIcon, 
-  MailIcon, GithubIcon, UserIcon, TerminalIcon, SettingsIcon
+  MailIcon, GithubIcon, UserIcon, TerminalIcon, SettingsIcon, CameraIcon
 } from '../../ui/Icons';
 import { StatusBar } from './StatusBar';
 import { Navigation } from './Navigation';
@@ -17,6 +17,7 @@ export const AppDrawer = () => {
     { id: 'projects', name: 'Projects', icon: FolderIcon },
     { id: 'skills', name: 'Skills', icon: CpuIcon },
     { id: 'experience', name: 'Experience', icon: BriefcaseIcon },
+    { id: 'camera', name: 'Camera', icon: CameraIcon },
     { id: 'case-studies', name: 'Case Studies', icon: BookOpenIcon },
     { id: 'github', name: 'GitHub', icon: GithubIcon },
     { id: 'terminal', name: 'Terminal', icon: TerminalIcon },

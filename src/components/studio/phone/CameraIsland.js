@@ -60,6 +60,20 @@ export class CameraIsland {
     pillCamGroup.add(subLens2);
 
     this.group.add(pillCamGroup);
+
+    // 3. Film Camera Inspired Red Video Recording Tally Light
+    const tallyGeom = new THREE.CylinderGeometry(0.045, 0.045, 0.04, 16);
+    tallyGeom.rotateX(Math.PI / 2);
+    const tallyMat = new THREE.MeshStandardMaterial({
+      color: 0xff2222,
+      emissive: 0xff1111,
+      emissiveIntensity: 0.85,
+      roughness: 0.2,
+      metalness: 0.1,
+    });
+    const tallyMesh = new THREE.Mesh(tallyGeom, tallyMat);
+    tallyMesh.position.set(-0.18, 2.9, 0.035);
+    this.group.add(tallyMesh);
   }
 
   getGroup() {

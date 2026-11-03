@@ -13,6 +13,7 @@ import { AppDrawer } from '../screen/AppDrawer';
 import { QuickPanel } from '../screen/QuickPanel';
 import { AppContainer } from '../screen/AppContainer';
 import { LockScreen } from '../screen/LockScreen';
+import { NothingProductModal } from '../showcase/NothingProductModal';
 
 export const PocketStudio = () => {
   const { 
@@ -33,6 +34,7 @@ export const PocketStudio = () => {
   const [flipped, setFlipped] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [show3DOnMobile, setShow3DOnMobile] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
   const [mouseEnv, setMouseEnv] = useState({ x: 50, y: 45 });
 
   // Sync wallpaper when finish changes
@@ -114,9 +116,13 @@ export const PocketStudio = () => {
               <ArrowLeftIcon className="w-3.5 h-3.5" />
               <span>Return to Screen</span>
             </button>
-            <span className="font-mono text-xs text-[#9AA6B2] tracking-wider uppercase">
-              3D Device Inspection
-            </span>
+            <button
+              type="button"
+              onClick={() => setShowProductModal(true)}
+              className="px-3 py-1.5 rounded-full bg-[#151a22] border border-[#232c3a] text-xs font-mono text-[#7CF2C9] hover:bg-[#1f2633] active:scale-95 transition-all"
+            >
+              Phone Specs
+            </button>
           </header>
 
           {/* Centered Mobile 3D Canvas */}
@@ -155,6 +161,12 @@ export const PocketStudio = () => {
               </button>
             </div>
           </footer>
+
+          <NothingProductModal 
+            isOpen={showProductModal} 
+            onClose={() => setShowProductModal(false)} 
+            onFlipPhone={(flip) => setFlipped(flip)} 
+          />
         </div>
       );
     }
@@ -163,7 +175,15 @@ export const PocketStudio = () => {
     return (
       <div className="relative w-screen h-screen mobile-viewport overflow-hidden bg-[#0B0F14] text-[#E8EDF2] font-sans antialiased select-none flex flex-col justify-between">
         {/* Minimal Floating 3D Device View Trigger (bottom right corner, never obstructing status bar) */}
-        <div className="absolute right-3.5 bottom-3.5 safe-bottom z-40 pointer-events-auto">
+        <div className="absolute right-3.5 bottom-3.5 safe-bottom z-40 pointer-events-auto flex items-center space-x-2">
+          <button
+            type="button"
+            onClick={() => setShowProductModal(true)}
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-[#141820]/80 backdrop-blur-md border border-[#232c3a] text-[10px] font-mono text-[#9AA6B2] hover:text-[#7CF2C9] hover:border-[#374457] transition-all shadow-sm active:scale-95 cursor-pointer"
+            aria-label="View Hardware Specifications"
+          >
+            <span>Specs</span>
+          </button>
           <button
             type="button"
             onClick={() => setShow3DOnMobile(true)}
@@ -179,6 +199,12 @@ export const PocketStudio = () => {
         <div className="w-full h-full flex flex-col">
           {renderPhoneScreen()}
         </div>
+
+        <NothingProductModal 
+          isOpen={showProductModal} 
+          onClose={() => setShowProductModal(false)} 
+          onFlipPhone={(flip) => setFlipped(flip)} 
+        />
       </div>
     );
   }
@@ -216,6 +242,21 @@ export const PocketStudio = () => {
             </button>
           );
         })}
+      </div>
+
+      {/* 2B. TOP-RIGHT: Phone (4a) Pro Official Launch Showcase Trigger */}
+      <div className="absolute top-6 right-8 z-30 hidden md:flex items-center space-x-3 pointer-events-auto">
+        <button
+          type="button"
+          onClick={() => setShowProductModal(true)}
+          className="flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full bg-[#131822]/80 hover:bg-[#1a212e] backdrop-blur-md border border-[#222c3b] hover:border-[#7CF2C9]/60 text-xs font-mono text-[#9AA6B2] hover:text-[#7CF2C9] transition-all cursor-pointer shadow-sm active:scale-95 group"
+          aria-label="View Phone (4a) Pro Official Launch Hardware Specifications & 140x Zoom"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9] animate-pulse" />
+          <span className="font-semibold text-[#E8EDF2] group-hover:text-white">Phone (4a) Pro</span>
+          <span className="text-[#3b4758]">·</span>
+          <span className="text-[11px] text-[#7CF2C9]">140x Zoom & Glyph Matrix</span>
+        </button>
       </div>
 
       {/* 3. RIGHT SIDE: Studio Navigation (Exact prsd.dev typography & section links) */}
@@ -260,7 +301,7 @@ export const PocketStudio = () => {
       {/* 4. CENTRE: 3D Phone World & Stage */}
       <div 
         className="phone-world"
-        aria-label={`Interactive Nothing Phone (4a) Pro ${FINISH_CONFIGS[finish]?.name || 'Silver'} portfolio`}
+        aria-label={`Interactive Phone (4a) Pro ${FINISH_CONFIGS[finish]?.name || 'Silver'} portfolio`}
       >
         <div className="phone-stage">
           <PhoneCanvas finish={finish} flipped={flipped} onFlipChange={setFlipped}>
@@ -268,6 +309,25 @@ export const PocketStudio = () => {
           </PhoneCanvas>
         </div>
       </div>
+
+      {/* Rear 137-LED Glyph Matrix Active Hint */}
+      {flipped && (
+        <aside 
+          className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center space-x-2.5 bg-[#0e131b]/90 backdrop-blur-md border border-[#222e3e] px-4 py-1.5 rounded-full text-xs font-mono text-[#9AA6B2] shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-200"
+          aria-label="Rear Glyph Status"
+        >
+          <span className="w-2 h-2 rounded-full bg-[#7CF2C9] animate-pulse" />
+          <span>137-LED Glyph Matrix Active</span>
+          <span className="text-[#3b4758]">·</span>
+          <button
+            type="button"
+            onClick={() => setShowProductModal(true)}
+            className="text-[#7CF2C9] hover:underline cursor-pointer font-semibold"
+          >
+            Customize Patterns
+          </button>
+        </aside>
+      )}
 
       {/* 5. BOTTOM: Studio Footer (Exact prsd.dev instructions & keyboard controls) */}
       <footer className="studio-footer">
@@ -281,6 +341,15 @@ export const PocketStudio = () => {
           <span>
             <kbd>Esc</kbd> to close
           </span>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setShowProductModal(true)}
+            className="hover:text-[#7CF2C9] transition-colors cursor-pointer"
+            title="Phone (4a) Pro Official Hardware & Tech Specs"
+          >
+            Phone Specs
+          </button>
           <span>·</span>
           <button
             type="button"
@@ -301,6 +370,13 @@ export const PocketStudio = () => {
           </button>
         </span>
       </footer>
+
+      {/* Official Phone (4a) Pro Launch Hardware Showcase Modal */}
+      <NothingProductModal 
+        isOpen={showProductModal}
+        onClose={() => setShowProductModal(false)}
+        onFlipPhone={(flip) => setFlipped(flip)}
+      />
 
     </main>
   );

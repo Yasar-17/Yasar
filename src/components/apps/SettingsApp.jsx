@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePhone } from '../../context/PhoneContext';
 import { AppWindow } from '../screen/AppWindow';
-import { CheckIcon, VolumeIcon, VolumeMuteIcon, SparklesIcon, CpuIcon } from '../../ui/Icons';
+import { CheckIcon, VolumeIcon, VolumeMuteIcon, SparklesIcon, CpuIcon, CameraIcon } from '../../ui/Icons';
 import { playSound } from '../../audio/soundEngine';
+import { NothingProductModal } from '../showcase/NothingProductModal';
 
 export const SettingsApp = () => {
   const { 
     activeWallpaper, setActiveWallpaper, 
     soundEnabled, toggleSound, 
-    activeGlyphPattern, cycleGlyph 
+    activeGlyphPattern, cycleGlyph,
+    openApp
   } = usePhone();
+
+  const [showModal, setShowModal] = useState(false);
 
   const wallpapers = [
     { id: 'obsidian', name: 'Pure Obsidian', bg: 'bg-[#080a0f]' },
@@ -97,10 +101,47 @@ export const SettingsApp = () => {
         </button>
       </div>
 
-      {/* 4. Hardware & OS Specifications */}
+      {/* 4. Hardware Showcase Launcher */}
+      <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="font-mono text-xs font-bold text-[#E8EDF2] block">Phone (4a) Pro Launch Tech</span>
+            <span className="font-mono text-[10px] text-[#626e7e] block">140x Periscope Ultra Zoom & 137 Glyph LEDs</span>
+          </div>
+          <span className="w-2 h-2 rounded-full bg-[#7CF2C9] animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setShowModal(true);
+              playSound('tick', soundEnabled);
+            }}
+            className="py-2 px-3 rounded-xl bg-[#1b222d] hover:bg-[#253040] border border-[#283547] text-xs font-mono text-[#7CF2C9] hover:text-white transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+          >
+            <CpuIcon className="w-3.5 h-3.5" />
+            <span>Launch Specs</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              openApp('camera');
+              playSound('click', soundEnabled);
+            }}
+            className="py-2 px-3 rounded-xl bg-[#1b222d] hover:bg-[#253040] border border-[#283547] text-xs font-mono text-[#E8EDF2] hover:text-white transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+          >
+            <CameraIcon className="w-3.5 h-3.5" />
+            <span>Open Camera</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 5. Hardware & OS Specifications */}
       <div className="bg-[#141820] border border-[#232c3a] rounded-[22px] p-4 shadow-sm space-y-2">
         <span className="font-mono text-[10px] uppercase tracking-wider text-[#626e7e] font-semibold block">
-          Hardware & Software Info
+          Official Hardware Specifications
         </span>
 
         <div className="space-y-1.5 font-mono text-[11px] text-[#9AA6B2]">
@@ -109,23 +150,37 @@ export const SettingsApp = () => {
             <span className="text-[#E8EDF2]">Phone (4a) Pro</span>
           </div>
           <div className="flex justify-between py-1 border-b border-[#1f2633]">
-            <span>Chassis</span>
-            <span className="text-[#E8EDF2]">6000-Series Anodized Aluminum</span>
+            <span>Periscope</span>
+            <span className="text-[#7CF2C9]">World’s 1st 140x Zoom</span>
           </div>
           <div className="flex justify-between py-1 border-b border-[#1f2633]">
-            <span>Operating System</span>
-            <span className="text-[#7CF2C9]">Yasar OS 3.0</span>
+            <span>Glyph Matrix</span>
+            <span className="text-[#E8EDF2]">137 Mini-LED Array</span>
+          </div>
+          <div className="flex justify-between py-1 border-b border-[#1f2633]">
+            <span>Processor</span>
+            <span className="text-[#E8EDF2]">Snapdragon 7 Gen 4 (4nm)</span>
           </div>
           <div className="flex justify-between py-1 border-b border-[#1f2633]">
             <span>Display</span>
-            <span className="text-[#E8EDF2]">6.7" OLED (120Hz LTPO)</span>
+            <span className="text-[#E8EDF2]">6.83" 1.5K AMOLED (5,000 Nits)</span>
+          </div>
+          <div className="flex justify-between py-1 border-b border-[#1f2633]">
+            <span>Battery</span>
+            <span className="text-[#E8EDF2]">5,080 mAh (65W Fast Charge)</span>
           </div>
           <div className="flex justify-between py-1">
             <span>Dimensions</span>
-            <span className="text-[#E8EDF2]">76.3 × 161.7 × 8.55 mm</span>
+            <span className="text-[#E8EDF2]">161.7 × 76.3 × 8.55 mm</span>
           </div>
         </div>
       </div>
+
+      {/* Nothing Product Showcase Modal */}
+      <NothingProductModal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+      />
     </AppWindow>
   );
 };

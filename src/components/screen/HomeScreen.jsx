@@ -15,6 +15,7 @@ import {
   SettingsIcon, 
   GithubIcon, 
   MailIcon,
+  CameraIcon,
   ExternalLinkIcon 
 } from '../../ui/Icons';
 
@@ -146,9 +147,9 @@ export const HomeScreen = () => {
         <AppIcon id="projects" label="Projects" icon={FolderIcon} badge />
         <AppIcon id="skills" label="Skills" icon={CpuIcon} />
         <AppIcon id="experience" label="Timeline" icon={BriefcaseIcon} />
+        <AppIcon id="camera" label="Camera" icon={CameraIcon} badge />
         <AppIcon id="case-studies" label="Studies" icon={BookOpenIcon} />
         <AppIcon id="resume" label="Resume" icon={FileTextIcon} />
-        <AppIcon id="terminal" label="Terminal" icon={TerminalIcon} />
         <AppIcon id="settings" label="Settings" icon={SettingsIcon} />
       </nav>
 

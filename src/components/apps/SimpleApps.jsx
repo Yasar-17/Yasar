@@ -9,6 +9,7 @@ import { ResumeApp } from './ResumeApp';
 import { ContactApp } from './ContactApp';
 import { SettingsApp } from './SettingsApp';
 import { CaseStudiesApp } from './CaseStudiesApp';
+import { CameraApp } from './CameraApp';
 
 export const SimpleApp = ({ appId }) => {
   switch (appId) {
@@ -32,6 +33,8 @@ export const SimpleApp = ({ appId }) => {
       return <SettingsApp />;
     case 'case-studies':
       return <CaseStudiesApp />;
+    case 'camera':
+      return <CameraApp />;
     default:
       return null;
   }

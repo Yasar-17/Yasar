@@ -2,10 +2,11 @@ import React from 'react';
 import { usePhone } from '../../context/PhoneContext';
 import { 
   VolumeIcon, VolumeMuteIcon, PowerIcon, RotateIcon,
-  CloseIcon, SparklesIcon
+  CloseIcon, SparklesIcon, CameraIcon
 } from '../../ui/Icons';
 import { StatusBar } from './StatusBar';
 import { Navigation } from './Navigation';
+import { glyphController } from '../glyph/glyphController';
 
 export const QuickPanel = () => {
   const { 
@@ -13,6 +14,7 @@ export const QuickPanel = () => {
     soundEnabled, toggleSound, 
     toggleLock, resetRotation, 
     cycleGlyph, activeGlyphPattern,
+    openApp,
   } = usePhone();
 
   if (!isQuickPanelOpen) return null;
@@ -89,6 +91,39 @@ export const QuickPanel = () => {
           <div>
             <span className="text-xs font-mono font-bold block text-[#E8EDF2]">Glyph LEDs</span>
             <span className="text-[10px] font-mono text-[#626e7e] block">Pattern {activeGlyphPattern + 1}</span>
+          </div>
+        </button>
+
+        {/* Quick Launch Camera */}
+        <button
+          type="button"
+          onClick={() => { openApp('camera'); setIsQuickPanelOpen(false); }}
+          className="flex items-center space-x-3 p-3 rounded-[20px] bg-[#141820] border border-[#1f2633] hover:border-[#7CF2C9]/40 text-left transition-all group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-[#1b222d] group-hover:bg-[#7CF2C9]/20 flex items-center justify-center text-[#9AA6B2] group-hover:text-[#7CF2C9] shrink-0 transition-colors">
+            <CameraIcon className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-xs font-mono font-bold block text-[#E8EDF2]">140x Camera</span>
+            <span className="text-[10px] font-mono text-[#626e7e] block">Sony periscope</span>
+          </div>
+        </button>
+
+        {/* Solar Path Glyph */}
+        <button
+          type="button"
+          onClick={() => {
+            glyphController.playPattern('solarPath', 4000, 'idle');
+            setIsQuickPanelOpen(false);
+          }}
+          className="flex items-center space-x-3 p-3 rounded-[20px] bg-[#141820] border border-[#1f2633] hover:border-[#FFD166]/40 text-left transition-all group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-[#1b222d] group-hover:bg-[#FFD166]/20 flex items-center justify-center text-[#9AA6B2] group-hover:text-[#FFD166] shrink-0 transition-colors">
+            <SparklesIcon className="w-4 h-4 text-[#FFD166]" />
+          </div>
+          <div>
+            <span className="text-xs font-mono font-bold block text-[#E8EDF2]">Solar Path</span>
+            <span className="text-[10px] font-mono text-[#626e7e] block">137-LED solar arc</span>
           </div>
         </button>
 

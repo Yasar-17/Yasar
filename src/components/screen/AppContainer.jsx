@@ -11,6 +11,7 @@ import { ResumeApp } from '../apps/ResumeApp';
 import { ContactApp } from '../apps/ContactApp';
 import { SettingsApp } from '../apps/SettingsApp';
 import { CaseStudiesApp } from '../apps/CaseStudiesApp';
+import { CameraApp } from '../apps/CameraApp';
 
 export const AppContainer = () => {
   const { activeApp, appOriginRect } = usePhone();
@@ -37,6 +38,8 @@ export const AppContainer = () => {
         return <SettingsApp />;
       case 'case-studies':
         return <CaseStudiesApp />;
+      case 'camera':
+        return <CameraApp />;
       default:
         return null;
     }
