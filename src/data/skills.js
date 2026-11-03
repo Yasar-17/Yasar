@@ -48,3 +48,4 @@ export const SKILL_CATEGORIES = [
 export const ALL_SKILLS = SKILL_CATEGORIES.flatMap((c) => c.skills);
 
 export default SKILL_CATEGORIES;
+

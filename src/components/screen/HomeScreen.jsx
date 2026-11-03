@@ -57,7 +57,7 @@ export const HomeScreen = () => {
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col justify-between ${getWallpaperClass()} text-[#E8EDF2] p-4 pt-1.5 pb-3 select-none overflow-hidden transition-colors duration-500 font-sans`}>
+    <div className={`relative w-full h-full flex flex-col justify-between ${getWallpaperClass()} text-[#E8EDF2] p-3 sm:p-4 pt-1.5 pb-2 sm:pb-3 safe-bottom select-none overflow-hidden transition-colors duration-500 font-sans`}>
       
       {/* 1. Status Bar */}
       <StatusBar />
@@ -75,33 +75,33 @@ export const HomeScreen = () => {
       />
 
       {/* 2. Clock & Date Bento Widgets */}
-      <div className="relative z-10 grid grid-cols-2 gap-2.5 mt-2 mb-1">
+      <div className="relative z-10 grid grid-cols-2 gap-2 sm:gap-2.5 mt-1 sm:mt-2 mb-1">
         
         {/* Widget 1: Digital Clock Widget */}
-        <div className="bg-[#121620]/90 border border-[#202937] rounded-[24px] p-3.5 shadow-md flex flex-col justify-between">
-          <span className="font-mono text-[10px] text-[#626e7e] uppercase tracking-wider">
+        <div className="bg-[#121620]/90 border border-[#202937] rounded-[22px] sm:rounded-[24px] p-2.5 sm:p-3.5 shadow-md flex flex-col justify-between">
+          <span className="font-mono text-[9px] sm:text-[10px] text-[#626e7e] uppercase tracking-wider">
             LOCAL TIME
           </span>
-          <span className="font-mono text-[34px] font-bold text-[#F0F4F8] leading-none tracking-tight my-1">
+          <span className="font-mono text-[26px] sm:text-[32px] md:text-[34px] font-bold text-[#F0F4F8] leading-none tracking-tight my-1">
             {time}
           </span>
-          <div className="flex items-center space-x-1.5 text-[10px] font-mono text-[#7CF2C9]">
+          <div className="flex items-center space-x-1.5 text-[9px] sm:text-[10px] font-mono text-[#7CF2C9]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9] animate-pulse" />
             <span>IST · Bengaluru</span>
           </div>
         </div>
 
         {/* Widget 2: Date & Status Widget */}
-        <div className="bg-[#121620]/90 border border-[#202937] rounded-[24px] p-3.5 shadow-md flex flex-col justify-between">
+        <div className="bg-[#121620]/90 border border-[#202937] rounded-[22px] sm:rounded-[24px] p-2.5 sm:p-3.5 shadow-md flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] text-[#626e7e] uppercase tracking-wider">
+            <span className="font-mono text-[9px] sm:text-[10px] text-[#626e7e] uppercase tracking-wider">
               CALENDAR
             </span>
             <span className="w-2 h-2 rounded-full bg-[#FF453A]" />
           </div>
 
           <div className="flex items-baseline space-x-1.5 my-1">
-            <span className="font-mono text-[32px] font-bold text-[#F0F4F8] leading-none">
+            <span className="font-mono text-[26px] sm:text-[30px] md:text-[32px] font-bold text-[#F0F4F8] leading-none">
               {dateInfo.date}
             </span>
             <span className="font-mono text-xs font-bold text-[#7CF2C9]">
@@ -109,7 +109,7 @@ export const HomeScreen = () => {
             </span>
           </div>
 
-          <span className="font-mono text-[10px] text-[#9AA6B2] uppercase tracking-wider">
+          <span className="font-mono text-[9px] sm:text-[10px] text-[#9AA6B2] uppercase tracking-wider">
             {dateInfo.month} 2026
           </span>
         </div>
@@ -117,7 +117,7 @@ export const HomeScreen = () => {
       </div>
 
       {/* 3. 8 Nothing-Inspired Monochrome App Icons Grid */}
-      <div className="relative z-10 grid grid-cols-4 gap-y-3.5 gap-x-2 px-1 my-auto">
+      <div className="relative z-10 grid grid-cols-4 gap-y-2.5 sm:gap-y-3.5 gap-x-1.5 sm:gap-x-2 px-1 my-auto">
         <AppIcon id="about" label="About" icon={UserIcon} />
         <AppIcon id="projects" label="Projects" icon={FolderIcon} badge />
         <AppIcon id="skills" label="Skills" icon={CpuIcon} />
@@ -135,7 +135,7 @@ export const HomeScreen = () => {
       </div>
 
       {/* 5. Minimal Dock with 4 Core Apps */}
-      <div className="relative z-10 bg-[#121620]/80 backdrop-blur-md border border-[#202937] rounded-[26px] p-2 px-3 shadow-lg flex items-center justify-around">
+      <div className="relative z-10 bg-[#121620]/80 backdrop-blur-md border border-[#202937] rounded-[24px] sm:rounded-[26px] p-1.5 sm:p-2 px-2.5 sm:px-3 shadow-lg flex items-center justify-around">
         <AppIcon id="terminal" label="CLI" icon={TerminalIcon} shape="circle" />
         <AppIcon id="projects" label="Work" icon={FolderIcon} shape="circle" />
         <AppIcon id="github" label="GitHub" icon={GithubIcon} shape="circle" />

@@ -7,6 +7,7 @@ import { PROFILE, PROJECTS } from '../../data';
 
 export const LockScreen = () => {
   const { setIsLocked, openApp, soundEnabled } = usePhone();
+  const [touchStartY, setTouchStartY] = useState(null);
   const [timeData, setTimeData] = useState({
     time: '10:30',
     date: 'Monday, Nov 2',
@@ -34,10 +35,28 @@ export const LockScreen = () => {
     setIsLocked(false);
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartY !== null) {
+      const touchEndY = e.changedTouches[0].clientY;
+      const dy = touchStartY - touchEndY;
+      if (dy > 45) {
+        handleUnlock();
+      }
+      setTouchStartY(null);
+    }
+  };
+
   return (
     <div 
-      className="relative w-full h-full bg-[#080b10] text-[#E8EDF2] flex flex-col justify-between p-4 pt-1.5 pb-4 select-none cursor-pointer overflow-hidden font-sans"
+      id="lockScreen"
+      className="relative w-full h-full bg-[#080b10] text-[#E8EDF2] flex flex-col justify-between p-4 pt-1.5 pb-4 safe-bottom select-none cursor-pointer overflow-hidden font-sans"
       onClick={handleUnlock}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* 1. Top Hardware Status Bar */}
       <StatusBar />
@@ -58,7 +77,7 @@ export const LockScreen = () => {
         </div>
 
         {/* Large Digital Clock */}
-        <h1 className="font-mono text-[84px] leading-none font-bold tracking-tighter text-[#F0F4F8] mt-2 drop-shadow-md">
+        <h1 className="font-mono text-[64px] sm:text-[76px] md:text-[84px] leading-none font-bold tracking-tighter text-[#F0F4F8] mt-2 drop-shadow-md">
           {timeData.time}
         </h1>
 

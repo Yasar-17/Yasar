@@ -20,7 +20,7 @@ export const StatusBar = ({ variant = 'light', showDynamicIsland = true }) => {
   const textColor = variant === 'dark' ? 'text-[#0B0F14]' : 'text-white/90';
 
   return (
-    <div className={`relative z-20 flex items-center justify-between px-3 pt-1.5 h-[34px] select-none ${textColor} text-xs font-mono`}>
+    <div className={`relative z-20 flex items-center justify-between px-3 pt-1.5 safe-top min-h-[34px] select-none ${textColor} text-xs font-mono`}>
       {/* 1. System Time */}
       <span className="font-semibold text-[13px] tracking-tight">
         {time}

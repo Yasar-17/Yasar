@@ -36,3 +36,4 @@ export const EDUCATION = {
 };
 
 export default EDUCATION;
+

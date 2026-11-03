@@ -106,13 +106,14 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
     const width = container.clientWidth;
     const height = container.clientHeight;
+    const isMobileViewport = width < 768 || (typeof window !== 'undefined' && window.innerWidth < 768);
 
-    // 1. WebGL Renderer
+    // 1. WebGL Renderer with adaptive mobile performance
     let webglRenderer;
     try {
       webglRenderer = new THREE.WebGLRenderer({
         alpha: true,
-        antialias: true,
+        antialias: !isMobileViewport, // Disable expensive MSAA on mobile devices
         powerPreference: 'high-performance',
       });
     } catch (err) {
@@ -120,14 +121,22 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
       return;
     }
 
-    webglRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const pixelRatio = isMobileViewport ? Math.min(window.devicePixelRatio || 1, 1.25) : Math.min(window.devicePixelRatio || 1, 2);
+    webglRenderer.setPixelRatio(pixelRatio);
     webglRenderer.setSize(width, height);
     webglRenderer.setClearColor(0x000000, 0);
     webglRenderer.outputColorSpace = THREE.SRGBColorSpace;
     webglRenderer.toneMapping = THREE.ACESFilmicToneMapping;
     webglRenderer.toneMappingExposure = 1.1;
-    webglRenderer.shadowMap.enabled = true;
-    webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // Real-time shadows enabled only on desktop/tablet to prevent mobile GPU throttling
+    if (!isMobileViewport) {
+      webglRenderer.shadowMap.enabled = true;
+      webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    } else {
+      webglRenderer.shadowMap.enabled = false;
+    }
+
     webglRenderer.domElement.className = "phone-canvas absolute inset-0 pointer-events-none";
     webglRenderer.domElement.setAttribute("aria-hidden", "true");
     container.appendChild(webglRenderer.domElement);
@@ -178,14 +187,18 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.85);
     keyLight.position.set(-3.5, 6, 8.5);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(1024, 1024);
-    keyLight.shadow.camera.left = -5;
-    keyLight.shadow.camera.right = 5;
-    keyLight.shadow.camera.top = 5;
-    keyLight.shadow.camera.bottom = -5;
-    keyLight.shadow.bias = -0.0001;
-    keyLight.shadow.normalBias = 0.008;
+    if (!isMobileViewport) {
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.set(1024, 1024);
+      keyLight.shadow.camera.left = -5;
+      keyLight.shadow.camera.right = 5;
+      keyLight.shadow.camera.top = 5;
+      keyLight.shadow.camera.bottom = -5;
+      keyLight.shadow.bias = -0.0001;
+      keyLight.shadow.normalBias = 0.008;
+    } else {
+      keyLight.castShadow = false;
+    }
     webglScene.add(keyLight);
 
     const fillLight = new THREE.DirectionalLight(0xe8edf2, 0.75);
@@ -210,7 +223,18 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     // 8. Render Loop with Smooth Spring, Inertia, and Dynamic Environmental Lighting
     const lerp = (a, b, t) => a + (b - a) * t;
 
+    let isTabVisible = true;
+    const handleVisibility = () => {
+      isTabVisible = !document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     const animate = (time) => {
+      if (!isTabVisible) {
+        animFrameRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
       glyphMgr.update(time);
 
       // Subtle dynamic environmental lighting shifting with mouse coordinates
@@ -264,6 +288,7 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibility);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (webglRenderer.domElement.parentNode) {
         webglRenderer.domElement.parentNode.removeChild(webglRenderer.domElement);

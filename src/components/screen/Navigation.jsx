@@ -7,7 +7,7 @@ export const Navigation = ({ showBackHint = true, className = '' }) => {
   const { closeApp } = usePhone();
 
   return (
-    <div className={`relative z-40 w-full flex flex-col items-center justify-center pt-2 pb-2 select-none ${className}`}>
+    <div className={`relative z-40 w-full flex flex-col items-center justify-center pt-1.5 pb-2 safe-bottom select-none ${className}`}>
       {/* Home Gesture Pill */}
       <motion.button
         type="button"

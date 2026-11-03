@@ -9,7 +9,8 @@ import {
   ExternalLinkIcon,
   MenuIcon,
   CloseIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  ArrowLeftIcon
 } from '../../ui/Icons';
 import { HomeScreen } from '../screen/HomeScreen';
 import { AppDrawer } from '../screen/AppDrawer';
@@ -35,6 +36,7 @@ export const PocketStudio = () => {
   const [finish, setFinish] = useState('silver');
   const [flipped, setFlipped] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [show3DOnMobile, setShow3DOnMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mouseEnv, setMouseEnv] = useState({ x: 50, y: 45 });
 
@@ -48,7 +50,11 @@ export const PocketStudio = () => {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setShow3DOnMobile(false);
+      }
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -95,6 +101,96 @@ export const PocketStudio = () => {
     </div>
   );
 
+  // ---------------------------------------------------------------------------
+  // MOBILE EXPERIENCE: The phone interface becomes the main full-screen experience
+  // ---------------------------------------------------------------------------
+  if (isMobile) {
+    if (show3DOnMobile) {
+      // Mobile 3D Inspection Viewer
+      return (
+        <div className="relative w-screen h-screen mobile-viewport overflow-hidden bg-[#090b0e] text-[#E8EDF2] font-sans antialiased select-none flex flex-col justify-between">
+          {/* Mobile 3D Top Header */}
+          <header className="relative z-30 flex items-center justify-between px-4 py-3 safe-top pointer-events-auto border-b border-[#1b222d] bg-[#0c0f15]/80 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => setShow3DOnMobile(false)}
+              className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-[#151a22] border border-[#232c3a] text-xs font-mono text-[#7CF2C9] hover:bg-[#1f2633] active:scale-95 transition-all"
+            >
+              <ArrowLeftIcon className="w-3.5 h-3.5" />
+              <span>Return to Screen</span>
+            </button>
+            <span className="font-mono text-xs text-[#9AA6B2] tracking-wider uppercase">
+              3D Device Inspection
+            </span>
+          </header>
+
+          {/* Centered Mobile 3D Canvas */}
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
+            <PhoneCanvas finish={finish} flipped={flipped} onFlipChange={setFlipped}>
+              {renderPhoneScreen()}
+            </PhoneCanvas>
+          </div>
+
+          {/* Mobile 3D Bottom Floating Control Pill */}
+          <footer className="relative z-30 flex flex-col items-center mb-3 safe-bottom pointer-events-auto px-4">
+            <div className="flex items-center space-x-1.5 bg-[#131720]/90 backdrop-blur-md border border-[#232c3a] rounded-full p-1 shadow-xl">
+              <button
+                type="button"
+                onClick={() => setFlipped(!flipped)}
+                className="flex items-center space-x-1.5 text-xs font-mono text-[#E8EDF2] hover:text-[#7CF2C9] px-3 py-1 rounded-full hover:bg-white/5 active:scale-95 transition-all"
+              >
+                <RotateIcon className="w-3.5 h-3.5" />
+                <span>{flipped ? 'Front' : 'Rear'}</span>
+              </button>
+              <div className="w-[1px] h-3 bg-[#232b36]" />
+              <button
+                type="button"
+                onClick={() => { setFlipped(false); }}
+                className="text-xs font-mono text-[#9AA6B2] hover:text-[#E8EDF2] px-3 py-1 rounded-full hover:bg-white/5 transition-colors"
+              >
+                Reset
+              </button>
+              <div className="w-[1px] h-3 bg-[#232b36]" />
+              <button
+                type="button"
+                onClick={() => setShow3DOnMobile(false)}
+                className="text-xs font-mono text-[#7CF2C9] hover:text-white px-3 py-1 rounded-full bg-[#7CF2C9]/15 border border-[#7CF2C9]/30 transition-colors"
+              >
+                Use Screen
+              </button>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    // Default Mobile Mode: Edge-to-Edge Full-Screen Smartphone Interface
+    return (
+      <div className="relative w-screen h-screen mobile-viewport overflow-hidden bg-[#0B0F14] text-[#E8EDF2] font-sans antialiased select-none flex flex-col justify-between">
+        {/* Minimal Floating 3D Device View Trigger (bottom right corner, never obstructing status bar) */}
+        <div className="absolute right-3.5 bottom-3.5 safe-bottom z-40 pointer-events-auto">
+          <button
+            type="button"
+            onClick={() => setShow3DOnMobile(true)}
+            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-[#141820]/80 backdrop-blur-md border border-[#232c3a] text-[10px] font-mono text-[#9AA6B2] hover:text-[#7CF2C9] hover:border-[#374457] transition-all shadow-sm active:scale-95 cursor-pointer"
+            aria-label="Inspect physical 3D phone model"
+          >
+            <RotateIcon className="w-3 h-3 text-[#7CF2C9]" />
+            <span>3D View</span>
+          </button>
+        </div>
+
+        {/* Full-bleed Native-Proportioned Screen */}
+        <div className="w-full h-full flex flex-col">
+          {renderPhoneScreen()}
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // DESKTOP & TABLET EXPERIENCE: Full 3D Pocket Studio Stage
+  // ---------------------------------------------------------------------------
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#090b0e] text-[#E8EDF2] font-sans antialiased select-none flex flex-col justify-between">
       
@@ -162,24 +258,11 @@ export const PocketStudio = () => {
       </header>
 
       {/* CENTRE: 3D Smartphone - Dominating the Screen, Large & Visually Impressive */}
-      {isMobile ? (
-        // Mobile Mode: Framed responsive phone container
-        <div className="relative z-10 w-full h-full max-w-[400px] max-h-[820px] mx-auto my-auto p-4 flex items-center justify-center">
-          <div 
-            onClick={() => { if (isLocked) setIsLocked(false); }}
-            className="w-full h-full rounded-[44px] overflow-hidden border-[6px] border-[#222832] shadow-2xl bg-[#0B0F14]"
-          >
-            {renderPhoneScreen()}
-          </div>
-        </div>
-      ) : (
-        // Desktop Mode: Full Three.js WebGL + CSS3DRenderer Stage
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
-          <PhoneCanvas finish={finish} flipped={flipped} onFlipChange={setFlipped}>
-            {renderPhoneScreen()}
-          </PhoneCanvas>
-        </div>
-      )}
+      <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
+        <PhoneCanvas finish={finish} flipped={flipped} onFlipChange={setFlipped}>
+          {renderPhoneScreen()}
+        </PhoneCanvas>
+      </div>
 
       {/* BOTTOM: "An interactive portfolio." + "Drag to explore. Tap to unlock." */}
       <footer className="relative z-30 flex flex-col items-center mb-6 pointer-events-auto px-6 text-center">
