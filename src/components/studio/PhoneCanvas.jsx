@@ -209,6 +209,10 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     rimLight.position.set(-2, 4.5, -6.5);
     webglScene.add(rimLight);
 
+    const rearFillLight = new THREE.DirectionalLight(0xdde8f5, 1.25);
+    rearFillLight.position.set(2.5, -2, -6.0);
+    webglScene.add(rearFillLight);
+
     // 7. Initialize Glyph Texture Manager & Build Modular Phone Assembly
     const glyphMgr = new GlyphTextureManager();
     glyphMgr.setPattern(activeGlyphPattern);

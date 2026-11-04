@@ -86,21 +86,22 @@ export class PhoneAssembly {
     rearGroup.position.z = -PHONE_DEPTH / 2 - 0.015;
     rearGroup.rotation.y = Math.PI;
 
-    // Rear Housing (Lower plate & Upper crystal dome)
+    // Rear Housing (Under-glass graphic plate, wireless coil, FPCs, and crystal backplate)
     this.rearHousing = new RearHousing(
       this.materials.aluminum,
       this.materials.glassVisor,
       this.materials.chamber,
-      this.materials.chamfer
+      this.materials.chamfer,
+      finishConfig
     );
     rearGroup.add(this.rearHousing.getGroup());
 
-    // Camera Island (50MP Circular & Pill Dual)
+    // Camera Island (50MP Circular, 140x Periscope Tetraprism, Film Tally, ToF Laser, Flash)
     this.cameraIsland = new CameraIsland(this.materials.milledRing, this.materials.lens);
     rearGroup.add(this.cameraIsland.getGroup());
 
     // 137-Mini-LED Live Emissive Glyph Matrix Window
-    this.glyphDisplay = new GlyphDisplay(this.glyphTextureManager);
+    this.glyphDisplay = new GlyphDisplay(this.glyphTextureManager, finishConfig);
     rearGroup.add(this.glyphDisplay.getGroup());
 
     this.group.add(rearGroup);
@@ -114,6 +115,9 @@ export class PhoneAssembly {
     }
     if (this.materials.glassVisor) {
       this.materials.glassVisor.color.set(finishConfig.tint);
+    }
+    if (this.rearHousing && this.rearHousing.updateFinish) {
+      this.rearHousing.updateFinish(finishConfig);
     }
   }
 
