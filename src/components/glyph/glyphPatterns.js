@@ -46,31 +46,31 @@ export const PATTERN_GENERATORS = {
 
   // 2. Idle State: Exact Nothing Phone Double-Peak Soundwave / Equalizer Waveform from Reference Image
   idle: (led, t) => {
-    // Exact symmetric dual-peak soundwave matching reference image:
-    // Left peak centered at col -3, right peak centered at col +2 / +3
-    const waveHeights = {
-      '-5': 1,
-      '-4': 2,
-      '-3': 3,
-      '-2': 2,
-      '-1': 1,
-      '0': 1,
-      '1': 2,
-      '2': 3,
-      '3': 3,
-      '4': 2,
-      '5': 1,
+    // Exact waveform layout from reference image:
+    // Left peak centered around col -3 / -1, right peak centered around col +1 / +3
+    const WAVEFORM_MAP = {
+      '-5': { min: 0, max: 0 },
+      '-4': { min: 0, max: 0 },
+      '-3': { min: -1, max: 2 },
+      '-2': { min: -1, max: 1 },
+      '-1': { min: -3, max: 1 },
+      '0':  { min: 0, max: 2 },
+      '1':  { min: -1, max: 3 },
+      '2':  { min: 0, max: 2 },
+      '3':  { min: -1, max: 3 },
+      '4':  { min: 0, max: 2 },
+      '5':  { min: 0, max: 0 },
     };
 
     const colStr = led.col.toString();
-    const maxRow = waveHeights[colStr];
+    const range = WAVEFORM_MAP[colStr];
 
-    if (maxRow !== undefined && Math.abs(led.row) <= maxRow) {
+    if (range && led.row >= range.min && led.row <= range.max) {
       // Crisp illuminated white diode with subtle organic breathing
-      const breath = Math.sin(t * 1.8 + led.col * 0.2) * 0.05 + 0.95;
+      const breath = Math.sin(t * 1.5 + led.col * 0.15) * 0.04 + 0.96;
       return breath;
     }
-    return 0.04; // Unlit phosphor diode background
+    return 0.03; // Unlit phosphor diode background
   },
 
   // 3. Projects Pattern: Stepped digital cascade / build sequence from bottom to top

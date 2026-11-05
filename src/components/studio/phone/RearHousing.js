@@ -51,14 +51,14 @@ export class RearHousing {
     // 2. Physical 3D Tactile Debossed Circular Dial at Bottom-Left
     // -------------------------------------------------------------------------
     const dialGroup = new THREE.Group();
-    dialGroup.position.set(-1.18, -2.95, 0.024);
+    dialGroup.position.set(-1.18, -2.95, 0.035);
 
     // Outer Debossed Ring Collar
-    const dialOuterGeom = new THREE.RingGeometry(0.24, 0.34, 48);
+    const dialOuterGeom = new THREE.RingGeometry(0.24, 0.35, 64);
     const dialRingMat = new THREE.MeshStandardMaterial({
-      color: 0x303a48,
-      metalness: 0.90,
-      roughness: 0.25,
+      color: 0x3d4b5d,
+      metalness: 0.92,
+      roughness: 0.22,
       side: THREE.DoubleSide,
     });
     const dialRing = new THREE.Mesh(dialOuterGeom, dialRingMat);
@@ -66,11 +66,11 @@ export class RearHousing {
     dialGroup.add(dialRing);
 
     // Debossed Inner Center Floor
-    const dialCenterGeom = new THREE.CircleGeometry(0.24, 48);
+    const dialCenterGeom = new THREE.CircleGeometry(0.24, 64);
     const dialCenterMat = new THREE.MeshStandardMaterial({
-      color: 0x12161e,
-      metalness: 0.35,
-      roughness: 0.55,
+      color: 0x11151e,
+      metalness: 0.25,
+      roughness: 0.65,
     });
     const dialCenter = new THREE.Mesh(dialCenterGeom, dialCenterMat);
     dialCenter.position.z = 0.001;

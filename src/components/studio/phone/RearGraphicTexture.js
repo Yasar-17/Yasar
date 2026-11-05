@@ -88,7 +88,7 @@ export class RearGraphicTexture {
     const isObsidian = this.finishConfig.id === 'obsidian' || !this.finishConfig.id;
     const isCopper = this.finishConfig.id === 'copper';
 
-    // 1. Clean Satin-Matte Unibody Base Plate
+    // 1. Clean Satin-Matte Unibody Base Plate matching reference image
     ctx.clearRect(0, 0, W, H);
     const baseBg = isObsidian ? '#181b22' : isCopper ? '#b55822' : '#d8dce2';
     ctx.fillStyle = baseBg;
@@ -96,59 +96,17 @@ export class RearGraphicTexture {
 
     // Subtle Satin Depth Sheen
     const sheen = ctx.createLinearGradient(0, 0, W, H);
-    sheen.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+    sheen.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
     sheen.addColorStop(0.5, 'rgba(255, 255, 255, 0.0)');
-    sheen.addColorStop(1, 'rgba(0, 0, 0, 0.09)');
+    sheen.addColorStop(1, 'rgba(0, 0, 0, 0.08)');
     ctx.fillStyle = sheen;
     ctx.fillRect(0, 0, W, H);
 
-    // 2. Upper Visor Plateau Chamber Shadow & Recess (Y: 180 to 720)
-    // Dark matte enclosure for the camera & circular display
-    const visorChamberBg = isObsidian ? '#0c0f15' : isCopper ? '#18120d' : '#1b222d';
-    ctx.fillStyle = visorChamberBg;
-    ctx.beginPath();
-    ctx.roundRect(85, 175, W - 170, 560, 85);
-    ctx.fill();
-
-    // Subtle inner bevel rim around the visor chamber
-    ctx.strokeStyle = isObsidian ? '#242b38' : isCopper ? '#3a2517' : '#334052';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // 3. Iconic Red Status Square (Bottom right of the upper visor)
-    ctx.fillStyle = '#D71921';
-    ctx.fillRect(815, 605, 38, 38);
-
-    // Pinhole microphone / sensor beside red square
-    ctx.fillStyle = '#06080b';
-    ctx.beginPath();
-    ctx.arc(875, 624, 7, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 4. Vertical Dot-Matrix Branding on Left Edge (matching reference image)
+    // 2. Vertical Dot-Matrix Branding on Left Edge (matching reference image)
     const brandColor = isObsidian ? '#384353' : isCopper ? '#7a3915' : '#88909e';
     this.drawVerticalDotMatrix('(4A) PRO', 125, 1480, 2.8, 5.2, brandColor);
 
-    // 5. Tactile Debossed Circular Dial at Bottom-Left (matching reference image)
-    const dialX = 185;
-    const dialY = 1790;
-    const dialR = 85;
-
-    // Debossed outer bevel shadow
-    ctx.strokeStyle = isObsidian ? '#0f1217' : isCopper ? '#7a3914' : '#b2b8c2';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.arc(dialX, dialY, dialR, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Debossed inner highlight rim
-    ctx.strokeStyle = isObsidian ? '#2e3746' : isCopper ? '#c4682c' : '#e4e8ee';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(dialX, dialY, dialR - 4, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 6. Subtle Regulatory Markings at Bottom-Right (matching reference image)
+    // 3. Subtle Regulatory Markings at Bottom-Right (matching reference image)
     const regColor = isObsidian ? '#2c3543' : isCopper ? '#5e2c10' : '#9ca6b5';
     ctx.strokeStyle = regColor;
     ctx.lineWidth = 3;

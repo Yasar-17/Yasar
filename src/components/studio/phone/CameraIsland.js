@@ -19,7 +19,7 @@ export class CameraIsland {
     });
 
     const pupilMat = new THREE.MeshBasicMaterial({ color: 0x010204 });
-    const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.90 });
+    const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.92 });
 
     // -------------------------------------------------------------------------
     // 1. Upper Visor Sculpted Glass Shield (Spans Camera + Display Pod)
@@ -39,45 +39,25 @@ export class CameraIsland {
     visorShape.quadraticCurveTo(-vw / 2, -vh / 2, -vw / 2 + vr, -vh / 2);
 
     const visorExtrude = {
-      depth: 0.026,
+      depth: 0.020,
       bevelEnabled: true,
       bevelSegments: 4,
-      bevelSize: 0.022,
-      bevelThickness: 0.022,
+      bevelSize: 0.016,
+      bevelThickness: 0.014,
     };
     const visorGeom = new THREE.ExtrudeGeometry(visorShape, visorExtrude);
     visorGeom.center();
 
     // Base dark metallic visor plateau
     const visorPlateauMat = new THREE.MeshStandardMaterial({
-      color: 0x12161f,
-      metalness: 0.82,
-      roughness: 0.26,
+      color: 0x151820,
+      metalness: 0.72,
+      roughness: 0.32,
     });
     const visorMesh = new THREE.Mesh(visorGeom, visorPlateauMat);
-    visorMesh.position.set(0, 1.95, 0.024);
+    visorMesh.position.set(0, 1.95, 0.016);
     visorMesh.castShadow = true;
     this.group.add(visorMesh);
-
-    // Visor Outer Metallic Bevel Rim
-    const rimShape = new THREE.Shape();
-    const rimExtrude = {
-      depth: 0.008,
-      bevelEnabled: true,
-      bevelSegments: 2,
-      bevelSize: 0.015,
-      bevelThickness: 0.015,
-    };
-    const rimGeom = new THREE.ExtrudeGeometry(visorShape, rimExtrude);
-    rimGeom.center();
-    const rimMat = new THREE.MeshStandardMaterial({
-      color: 0x48566a,
-      metalness: 0.95,
-      roughness: 0.16,
-    });
-    const rimMesh = new THREE.Mesh(rimGeom, rimMat);
-    rimMesh.position.set(0, 1.95, 0.038);
-    this.group.add(rimMesh);
 
     // -------------------------------------------------------------------------
     // 2. Large Primary Main Camera Lens (Top Left: x = -0.72, y = 2.25)
@@ -86,34 +66,34 @@ export class CameraIsland {
     mainCamGroup.position.set(-0.72, 2.25, 0.046);
 
     // Outer Milled CNC Bezel Ring
-    const mainOuterGeom = new THREE.CylinderGeometry(0.48, 0.48, 0.048, 48);
+    const mainOuterGeom = new THREE.CylinderGeometry(0.48, 0.48, 0.038, 48);
     mainOuterGeom.rotateX(Math.PI / 2);
     const mainOuterRing = new THREE.Mesh(mainOuterGeom, bezelMat);
     mainOuterRing.castShadow = true;
     mainCamGroup.add(mainOuterRing);
 
     // Stepped Inner Bezel Ring
-    const mainInnerGeom = new THREE.CylinderGeometry(0.38, 0.38, 0.055, 48);
+    const mainInnerGeom = new THREE.CylinderGeometry(0.38, 0.38, 0.044, 48);
     mainInnerGeom.rotateX(Math.PI / 2);
     const mainInnerRing = new THREE.Mesh(mainInnerGeom, innerKnurlMat);
     mainCamGroup.add(mainInnerRing);
 
     // Optical Sapphire Glass Lens
-    const mainLensGeom = new THREE.CylinderGeometry(0.30, 0.30, 0.060, 48);
+    const mainLensGeom = new THREE.CylinderGeometry(0.30, 0.30, 0.048, 48);
     mainLensGeom.rotateX(Math.PI / 2);
     const mainLens = new THREE.Mesh(mainLensGeom, lensMat);
     mainCamGroup.add(mainLens);
 
-    // Center Pupil Aperture
+    // Deep Center Pupil Aperture
     const mainPupilGeom = new THREE.CircleGeometry(0.14, 32);
     const mainPupil = new THREE.Mesh(mainPupilGeom, pupilMat);
-    mainPupil.position.z = 0.032;
+    mainPupil.position.z = 0.026;
     mainCamGroup.add(mainPupil);
 
     // White Specular Lens Glint Dot
     const mainGlintGeom = new THREE.CircleGeometry(0.048, 16);
     const mainGlint = new THREE.Mesh(mainGlintGeom, glintMat);
-    mainGlint.position.set(0.09, 0.09, 0.034);
+    mainGlint.position.set(0.09, 0.09, 0.028);
     mainCamGroup.add(mainGlint);
 
     this.group.add(mainCamGroup);
@@ -132,11 +112,11 @@ export class CameraIsland {
     pillShape.absarc(pw / 2, 0, pr, -Math.PI / 2, Math.PI / 2, false);
 
     const pillExtrude = {
-      depth: 0.045,
+      depth: 0.032,
       bevelEnabled: true,
       bevelSegments: 3,
-      bevelSize: 0.018,
-      bevelThickness: 0.018,
+      bevelSize: 0.015,
+      bevelThickness: 0.015,
     };
     const pillGeom = new THREE.ExtrudeGeometry(pillShape, pillExtrude);
     pillGeom.center();
@@ -148,14 +128,14 @@ export class CameraIsland {
     const subLensPositions = [-0.25, 0.25]; // Relative to pill center
     subLensPositions.forEach((lx) => {
       // Stepped Lens Ring
-      const ringGeom = new THREE.CylinderGeometry(0.17, 0.17, 0.052, 32);
+      const ringGeom = new THREE.CylinderGeometry(0.17, 0.17, 0.038, 32);
       ringGeom.rotateX(Math.PI / 2);
       const ringMesh = new THREE.Mesh(ringGeom, innerKnurlMat);
       ringMesh.position.x = lx;
       pillGroup.add(ringMesh);
 
       // Lens Glass
-      const subLensGeom = new THREE.CylinderGeometry(0.13, 0.13, 0.056, 32);
+      const subLensGeom = new THREE.CylinderGeometry(0.13, 0.13, 0.042, 32);
       subLensGeom.rotateX(Math.PI / 2);
       const subLens = new THREE.Mesh(subLensGeom, lensMat);
       subLens.position.x = lx;
@@ -164,49 +144,66 @@ export class CameraIsland {
       // Pupil
       const pupilGeom = new THREE.CircleGeometry(0.065, 24);
       const pupil = new THREE.Mesh(pupilGeom, pupilMat);
-      pupil.position.set(lx, 0, 0.030);
+      pupil.position.set(lx, 0, 0.024);
       pillGroup.add(pupil);
 
       // Specular Glint
       const glintGeom = new THREE.CircleGeometry(0.022, 16);
       const glint = new THREE.Mesh(glintGeom, glintMat);
-      glint.position.set(lx + 0.035, 0.035, 0.031);
+      glint.position.set(lx + 0.035, 0.035, 0.026);
       pillGroup.add(glint);
     });
 
     this.group.add(pillGroup);
 
     // -------------------------------------------------------------------------
-    // 4. Pinhole Microphone / Ambient Sensor
+    // 4. Pinhole Microphone & Center Ambient Flash / Sensor
     // -------------------------------------------------------------------------
     const micGeom = new THREE.CylinderGeometry(0.035, 0.035, 0.02, 16);
     micGeom.rotateX(Math.PI / 2);
     const micMesh = new THREE.Mesh(micGeom, pupilMat);
-    micMesh.position.set(-0.12, 2.22, 0.038);
+    micMesh.position.set(-0.12, 2.22, 0.042);
     this.group.add(micMesh);
+
+    // Center Ambient Sensor / Flash Dot
+    const flashBezelGeom = new THREE.CylinderGeometry(0.065, 0.065, 0.02, 24);
+    flashBezelGeom.rotateX(Math.PI / 2);
+    const flashBezel = new THREE.Mesh(flashBezelGeom, bezelMat);
+    flashBezel.position.set(-0.06, 1.95, 0.043);
+    this.group.add(flashBezel);
+
+    const flashDotGeom = new THREE.CircleGeometry(0.045, 24);
+    const flashDotMat = new THREE.MeshStandardMaterial({
+      color: 0xd4dde8,
+      metalness: 0.92,
+      roughness: 0.15,
+    });
+    const flashDot = new THREE.Mesh(flashDotGeom, flashDotMat);
+    flashDot.position.set(-0.06, 1.95, 0.045);
+    this.group.add(flashDot);
 
     // -------------------------------------------------------------------------
     // 5. Iconic Red Status Square (Bottom Right of Upper Visor)
     // -------------------------------------------------------------------------
     const redMat = new THREE.MeshStandardMaterial({
       color: 0xD71921,
-      roughness: 0.25,
-      metalness: 0.2,
+      roughness: 0.20,
+      metalness: 0.15,
       emissive: 0xD71921,
-      emissiveIntensity: 0.55,
+      emissiveIntensity: 0.95,
     });
-    const redGeom = new THREE.BoxGeometry(0.14, 0.14, 0.015);
+    const redGeom = new THREE.BoxGeometry(0.13, 0.13, 0.020);
     const redMesh = new THREE.Mesh(redGeom, redMat);
-    redMesh.position.set(1.24, 1.28, 0.045);
+    redMesh.position.set(1.22, 1.30, 0.046);
     this.group.add(redMesh);
 
     // Dual Micro-Sensor Dots beside red square
-    const pinGeom = new THREE.CylinderGeometry(0.025, 0.025, 0.015, 12);
+    const pinGeom = new THREE.CylinderGeometry(0.022, 0.022, 0.015, 12);
     pinGeom.rotateX(Math.PI / 2);
     const pin1 = new THREE.Mesh(pinGeom, pupilMat);
-    pin1.position.set(1.42, 1.34, 0.035);
+    pin1.position.set(1.36, 1.35, 0.044);
     const pin2 = new THREE.Mesh(pinGeom, pupilMat);
-    pin2.position.set(1.42, 1.22, 0.035);
+    pin2.position.set(1.36, 1.25, 0.044);
     this.group.add(pin1);
     this.group.add(pin2);
 

@@ -90,14 +90,14 @@ export class GlyphTextureManager {
       const y = py - diodeSize / 2;
 
       if (brightness > 0.04) {
-        // Active Illuminated Diode with Realistic Diffusion and Restrained Brightness
+        // Active Illuminated Diode matching the reference image bright white soundwave
         ctx.save();
 
         // Layer 1: Soft Ambient Phosphor Halo Falloff
-        const glowRadius = diodeSize * (1.2 + brightness * 0.8);
+        const glowRadius = diodeSize * 1.6;
         const glowGrad = ctx.createRadialGradient(px, py, diodeSize * 0.2, px, py, glowRadius);
-        glowGrad.addColorStop(0, `rgba(255, 255, 255, ${brightness * 0.75})`);
-        glowGrad.addColorStop(0.5, `rgba(240, 245, 255, ${brightness * 0.3})`);
+        glowGrad.addColorStop(0, `rgba(255, 255, 255, ${Math.min(1.0, brightness * 0.9)})`);
+        glowGrad.addColorStop(0.5, `rgba(240, 248, 255, ${brightness * 0.4})`);
         glowGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
         ctx.fillStyle = glowGrad;
@@ -105,13 +105,13 @@ export class GlyphTextureManager {
         ctx.arc(px, py, glowRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Layer 2: Core Square Diode with Subtle Corner Radius
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1.0, 0.4 + brightness * 0.6)})`;
-        ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 8 * brightness;
+        // Layer 2: Core Square Diode - Pure Brilliant White Pixel
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = '#FFFFFF';
+        ctx.shadowBlur = 10 * brightness;
 
         ctx.beginPath();
-        ctx.roundRect(x, y, diodeSize, diodeSize, 2);
+        ctx.roundRect(x, y, diodeSize, diodeSize, 1.5);
         ctx.fill();
 
         ctx.restore();

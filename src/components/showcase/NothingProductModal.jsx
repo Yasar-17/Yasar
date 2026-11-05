@@ -226,7 +226,7 @@ export const NothingProductModal = ({ isOpen, onClose, onFlipPhone }) => {
           </div>
 
           {/* Modal Content Body */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 text-[#E8EDF2]">
+          <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6 text-[#E8EDF2]">
             
             {/* TAB 1: 140x Ultra Zoom Camera System */}
             {activeTab === 'camera' && (

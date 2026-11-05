@@ -79,7 +79,7 @@ export const AppWindow = ({
       </header>
 
       {/* 3. Scrollable App Content Surface */}
-      <main className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-2.5 sm:py-3 space-y-2.5 sm:space-y-3 focus:outline-none overscroll-contain">
+      <main className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-3 sm:px-4 py-2.5 sm:py-3 space-y-2.5 sm:space-y-3 focus:outline-none overscroll-contain">
         {children}
       </main>
 

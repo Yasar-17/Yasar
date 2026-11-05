@@ -7,6 +7,7 @@ import {
 } from '../../ui/Icons';
 import { StatusBar } from './StatusBar';
 import { Navigation } from './Navigation';
+import { AppIcon } from './AppIcon';
 
 export const AppDrawer = () => {
   const { isDrawerOpen, setIsDrawerOpen, openApp } = usePhone();
@@ -18,7 +19,7 @@ export const AppDrawer = () => {
     { id: 'skills', name: 'Skills', icon: CpuIcon },
     { id: 'experience', name: 'Experience', icon: BriefcaseIcon },
     { id: 'camera', name: 'Camera', icon: CameraIcon },
-    { id: 'case-studies', name: 'Case Studies', icon: BookOpenIcon },
+    { id: 'case-studies', name: 'Studies', icon: BookOpenIcon },
     { id: 'github', name: 'GitHub', icon: GithubIcon },
     { id: 'terminal', name: 'Terminal', icon: TerminalIcon },
     { id: 'resume', name: 'Resume', icon: FileTextIcon },
@@ -32,16 +33,6 @@ export const AppDrawer = () => {
   }, [query, allApps]);
 
   if (!isDrawerOpen) return null;
-
-  const handleAppClick = (appId, e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    openApp(appId, {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-    });
-  };
 
   return (
     <div 
@@ -72,26 +63,16 @@ export const AppDrawer = () => {
         </button>
       </div>
 
-      {/* Grid of Apps */}
-      <div className="flex-1 overflow-y-auto py-2 grid grid-cols-4 gap-y-4 gap-x-2">
-        {filteredApps.map((app) => {
-          const Icon = app.icon;
-          return (
-            <button
-              key={app.id}
-              type="button"
-              onClick={(e) => handleAppClick(app.id, e)}
-              className="flex flex-col items-center group focus:outline-none"
-            >
-              <div className="w-[52px] h-[52px] rounded-[18px] bg-[#141820] border border-[#232c3a] group-hover:border-[#38465c] text-white flex items-center justify-center shadow-md transition-colors group-hover:scale-105 active:scale-95">
-                <Icon className="w-5 h-5 text-[#E8EDF2] group-hover:text-[#7CF2C9] transition-colors" />
-              </div>
-              <span className="font-mono text-[10px] text-[#9AA6B2] group-hover:text-[#E8EDF2] mt-1.5 truncate max-w-[62px]">
-                {app.name}
-              </span>
-            </button>
-          );
-        })}
+      {/* Grid of Apps with Real Phone Themed AppIcons */}
+      <div className="flex-1 overflow-y-auto no-scrollbar py-2 grid grid-cols-4 gap-y-4 gap-x-2">
+        {filteredApps.map((app) => (
+          <AppIcon
+            key={app.id}
+            id={app.id}
+            label={app.name}
+            icon={app.icon}
+          />
+        ))}
       </div>
 
       {/* Bottom Home Pill */}

@@ -5,11 +5,19 @@ async function main() {
   console.log('--- Testing prsd.dev + Phone (4a) Pro Launch Integration ---');
   fs.mkdirSync('/tmp/nothing_test', { recursive: true });
 
-  const ff = spawn('firefox', ['--headless', '--remote-debugging-port=9223', 'http://localhost:5173']);
-  await new Promise((r) => setTimeout(r, 2000));
+  const profileDir = `/tmp/ff_test_${Date.now()}`;
+  fs.mkdirSync(profileDir, { recursive: true });
+  const ff = spawn('firefox', [
+    '--no-remote',
+    '--headless',
+    '--profile', profileDir,
+    '--remote-debugging-port=9223',
+    'http://localhost:5173'
+  ]);
+  await new Promise((r) => setTimeout(r, 2500));
 
   let ws;
-  for (let attempt = 0; attempt < 8; attempt++) {
+  for (let attempt = 0; attempt < 10; attempt++) {
     try {
       ws = new WebSocket('ws://127.0.0.1:9223/session');
       await new Promise((res, rej) => {
@@ -169,7 +177,7 @@ async function main() {
 
     // Verify Reference Image Home Screen Widgets (Stretch & Eyes)
     const stretchWidget = await evalCode(`!!document.querySelector('button[aria-label="Stretch media widget"]')`);
-    const eyesWidget = await evalCode(`!!document.querySelector('button[aria-label="Interactive Nothing Eyes Widget"]')`);
+    const eyesWidget = await evalCode(`!!document.querySelector('button[aria-label*="Eyes Widget"]')`);
     const cameraIconExists = await evalCode(`!!document.querySelector('button[aria-label="Open Camera"]')`);
     console.log('      Stretch Media Widget (Reference UI):', stretchWidget ? 'PASS' : 'FAIL');
     console.log('      Interactive Eyes Widget (Reference UI):', eyesWidget ? 'PASS' : 'FAIL');

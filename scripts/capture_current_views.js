@@ -6,11 +6,19 @@ async function main() {
   const targetDir = '/home/yasar/.gemini/antigravity/brain/ac810cd6-f39e-4da6-9062-69ba66975d2a/debug_views';
   fs.mkdirSync(targetDir, { recursive: true });
 
-  const ff = spawn('firefox', ['--headless', '--remote-debugging-port=9229', 'http://localhost:5173']);
-  await new Promise((r) => setTimeout(r, 2000));
+  const profileDir = `/tmp/ff_capture_${Date.now()}`;
+  fs.mkdirSync(profileDir, { recursive: true });
+  const ff = spawn('firefox', [
+    '--no-remote',
+    '--headless',
+    '--profile', profileDir,
+    '--remote-debugging-port=9229',
+    'http://localhost:5173'
+  ]);
+  await new Promise((r) => setTimeout(r, 2500));
 
   let ws;
-  for (let attempt = 0; attempt < 8; attempt++) {
+  for (let attempt = 0; attempt < 10; attempt++) {
     try {
       ws = new WebSocket('ws://127.0.0.1:9229/session');
       await new Promise((res, rej) => {

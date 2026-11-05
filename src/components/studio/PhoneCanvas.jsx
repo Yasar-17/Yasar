@@ -387,8 +387,8 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     targetRotRef.current.x = Math.max(-0.55, Math.min(0.55, targetRotRef.current.x));
 
     pointerVelocityRef.current = {
-      x: (dx / dt) * 16,
-      y: (dy / dt) * 16,
+      x: Math.max(-6, Math.min(6, (dx / dt) * 6)),
+      y: Math.max(-6, Math.min(6, (dy / dt) * 6)),
     };
 
     lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
@@ -408,9 +408,11 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
       setIsLocked(false);
     }
 
-    // Exact prsd.dev coasting and magnetic face settling
-    const projectedYaw = targetRotRef.current.y + pointerVelocityRef.current.x * 0.035;
-    const settledYaw = snapYaw(projectedYaw);
+    // Smooth coasting with clamped inertia to prevent rapid spinning
+    const rawProjected = targetRotRef.current.y + pointerVelocityRef.current.x * 0.015;
+    const maxDelta = Math.PI * 0.55;
+    const clampedProjected = targetRotRef.current.y + Math.max(-maxDelta, Math.min(maxDelta, rawProjected - targetRotRef.current.y));
+    const settledYaw = snapYaw(clampedProjected);
     targetRotRef.current.y = settledYaw;
     targetRotRef.current.x = 0;
 

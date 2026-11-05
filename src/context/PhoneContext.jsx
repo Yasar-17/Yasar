@@ -94,6 +94,14 @@ export const PhoneProvider = ({ children }) => {
     });
   }, [soundEnabled]);
 
+  const setGlyphPattern = useCallback((pattern) => {
+    playSound('tick', soundEnabled);
+    glyphController.setPattern(pattern);
+    const patterns = ['idle', 'projects', 'about', 'contact', 'progress', 'equalizer'];
+    const idx = patterns.indexOf(pattern);
+    if (idx >= 0) setActiveGlyphPattern(idx);
+  }, [soundEnabled]);
+
   const resetRotation = useCallback(() => {
     playSound('tick', soundEnabled);
     setRotation({ x: -6, y: 12 });
@@ -153,6 +161,7 @@ export const PhoneProvider = ({ children }) => {
     toggleLock,
     toggleSound,
     cycleGlyph,
+    setGlyphPattern,
     resetRotation,
     triggerSnapshot,
   };
