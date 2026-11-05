@@ -5,29 +5,29 @@ export class CameraIsland {
     this.group = new THREE.Group();
     this.group.name = "CameraIsland";
 
-    // Premium dark metal finish for camera housings
+    // Premium dark metal finish for camera housings (anodized titanium sheen)
     const bezelMat = new THREE.MeshStandardMaterial({
-      color: 0x1b2029,
-      metalness: 0.90,
-      roughness: 0.25,
+      color: 0x3e4b5d,
+      metalness: 0.92,
+      roughness: 0.22,
     });
 
     const innerKnurlMat = new THREE.MeshStandardMaterial({
-      color: 0x101318,
-      metalness: 0.85,
-      roughness: 0.35,
+      color: 0x202734,
+      metalness: 0.88,
+      roughness: 0.32,
     });
 
-    const pupilMat = new THREE.MeshBasicMaterial({ color: 0x020406 });
-    const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 });
+    const pupilMat = new THREE.MeshBasicMaterial({ color: 0x010204 });
+    const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.90 });
 
     // -------------------------------------------------------------------------
     // 1. Upper Visor Sculpted Glass Shield (Spans Camera + Display Pod)
     // -------------------------------------------------------------------------
     const visorShape = new THREE.Shape();
     const vw = 3.12;
-    const vh = 2.05;
-    const vr = 0.38;
+    const vh = 2.02;
+    const vr = 0.40;
     visorShape.moveTo(-vw / 2 + vr, -vh / 2);
     visorShape.lineTo(vw / 2 - vr, -vh / 2);
     visorShape.quadraticCurveTo(vw / 2, -vh / 2, vw / 2, -vh / 2 + vr);
@@ -39,37 +39,51 @@ export class CameraIsland {
     visorShape.quadraticCurveTo(-vw / 2, -vh / 2, -vw / 2 + vr, -vh / 2);
 
     const visorExtrude = {
-      depth: 0.038,
+      depth: 0.026,
       bevelEnabled: true,
       bevelSegments: 4,
-      bevelSize: 0.025,
-      bevelThickness: 0.025,
+      bevelSize: 0.022,
+      bevelThickness: 0.022,
     };
     const visorGeom = new THREE.ExtrudeGeometry(visorShape, visorExtrude);
     visorGeom.center();
 
-    const visorMat = new THREE.MeshPhysicalMaterial({
-      color: 0x080c12,
-      transmission: 0.82,
-      opacity: 0.92,
-      transparent: true,
-      roughness: 0.08,
-      ior: 1.54,
-      thickness: 0.18,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
+    // Base dark metallic visor plateau
+    const visorPlateauMat = new THREE.MeshStandardMaterial({
+      color: 0x12161f,
+      metalness: 0.82,
+      roughness: 0.26,
     });
-
-    const visorMesh = new THREE.Mesh(visorGeom, visorMat);
-    visorMesh.position.set(0, 1.95, 0.022);
+    const visorMesh = new THREE.Mesh(visorGeom, visorPlateauMat);
+    visorMesh.position.set(0, 1.95, 0.024);
     visorMesh.castShadow = true;
     this.group.add(visorMesh);
+
+    // Visor Outer Metallic Bevel Rim
+    const rimShape = new THREE.Shape();
+    const rimExtrude = {
+      depth: 0.008,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      bevelSize: 0.015,
+      bevelThickness: 0.015,
+    };
+    const rimGeom = new THREE.ExtrudeGeometry(visorShape, rimExtrude);
+    rimGeom.center();
+    const rimMat = new THREE.MeshStandardMaterial({
+      color: 0x48566a,
+      metalness: 0.95,
+      roughness: 0.16,
+    });
+    const rimMesh = new THREE.Mesh(rimGeom, rimMat);
+    rimMesh.position.set(0, 1.95, 0.038);
+    this.group.add(rimMesh);
 
     // -------------------------------------------------------------------------
     // 2. Large Primary Main Camera Lens (Top Left: x = -0.72, y = 2.25)
     // -------------------------------------------------------------------------
     const mainCamGroup = new THREE.Group();
-    mainCamGroup.position.set(-0.72, 2.25, 0.045);
+    mainCamGroup.position.set(-0.72, 2.25, 0.046);
 
     // Outer Milled CNC Bezel Ring
     const mainOuterGeom = new THREE.CylinderGeometry(0.48, 0.48, 0.048, 48);
@@ -97,9 +111,9 @@ export class CameraIsland {
     mainCamGroup.add(mainPupil);
 
     // White Specular Lens Glint Dot
-    const mainGlintGeom = new THREE.CircleGeometry(0.045, 16);
+    const mainGlintGeom = new THREE.CircleGeometry(0.048, 16);
     const mainGlint = new THREE.Mesh(mainGlintGeom, glintMat);
-    mainGlint.position.set(0.08, 0.08, 0.033);
+    mainGlint.position.set(0.09, 0.09, 0.034);
     mainCamGroup.add(mainGlint);
 
     this.group.add(mainCamGroup);
@@ -176,12 +190,14 @@ export class CameraIsland {
     // -------------------------------------------------------------------------
     const redMat = new THREE.MeshStandardMaterial({
       color: 0xD71921,
-      roughness: 0.35,
-      metalness: 0.1,
+      roughness: 0.25,
+      metalness: 0.2,
+      emissive: 0xD71921,
+      emissiveIntensity: 0.55,
     });
     const redGeom = new THREE.BoxGeometry(0.14, 0.14, 0.015);
     const redMesh = new THREE.Mesh(redGeom, redMat);
-    redMesh.position.set(1.24, 1.28, 0.035);
+    redMesh.position.set(1.24, 1.28, 0.045);
     this.group.add(redMesh);
 
     // Dual Micro-Sensor Dots beside red square

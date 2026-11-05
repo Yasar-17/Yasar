@@ -25,16 +25,25 @@ export class RearHousing {
 
     const graphicMat = new THREE.MeshStandardMaterial({
       map: graphicTex,
-      metalness: 0.12,
-      roughness: 0.62,
+      metalness: 0.25,
+      roughness: 0.38,
       side: THREE.FrontSide,
     });
     this.graphicMat = graphicMat;
 
-    const innerShape = createRoundedRectShape(W - 0.08, H - 0.08, R - 0.04);
-    const innerGeom = new THREE.ShapeGeometry(innerShape);
+    const innerShape = createRoundedRectShape(W - 0.04, H - 0.04, R - 0.02);
+    const innerExtrude = {
+      depth: 0.015,
+      bevelEnabled: true,
+      bevelSegments: 3,
+      bevelSize: 0.015,
+      bevelThickness: 0.015,
+    };
+    const innerGeom = new THREE.ExtrudeGeometry(innerShape, innerExtrude);
+    innerGeom.center();
+
     const innerMesh = new THREE.Mesh(innerGeom, graphicMat);
-    innerMesh.position.z = 0.002;
+    innerMesh.position.set(0, 0, 0.010);
     innerMesh.receiveShadow = true;
     this.group.add(innerMesh);
 
@@ -42,14 +51,14 @@ export class RearHousing {
     // 2. Physical 3D Tactile Debossed Circular Dial at Bottom-Left
     // -------------------------------------------------------------------------
     const dialGroup = new THREE.Group();
-    dialGroup.position.set(-1.18, -2.95, 0.005);
+    dialGroup.position.set(-1.18, -2.95, 0.024);
 
     // Outer Debossed Ring Collar
-    const dialOuterGeom = new THREE.RingGeometry(0.24, 0.33, 48);
+    const dialOuterGeom = new THREE.RingGeometry(0.24, 0.34, 48);
     const dialRingMat = new THREE.MeshStandardMaterial({
-      color: 0x181e26,
-      metalness: 0.85,
-      roughness: 0.35,
+      color: 0x303a48,
+      metalness: 0.90,
+      roughness: 0.25,
       side: THREE.DoubleSide,
     });
     const dialRing = new THREE.Mesh(dialOuterGeom, dialRingMat);
@@ -59,35 +68,15 @@ export class RearHousing {
     // Debossed Inner Center Floor
     const dialCenterGeom = new THREE.CircleGeometry(0.24, 48);
     const dialCenterMat = new THREE.MeshStandardMaterial({
-      color: 0x11141a,
-      metalness: 0.2,
-      roughness: 0.7,
+      color: 0x12161e,
+      metalness: 0.35,
+      roughness: 0.55,
     });
     const dialCenter = new THREE.Mesh(dialCenterGeom, dialCenterMat);
     dialCenter.position.z = 0.001;
     dialGroup.add(dialCenter);
 
     this.group.add(dialGroup);
-
-    // -------------------------------------------------------------------------
-    // 3. Full-Body 2.5D Crystal Transparent Glass Backplate (Layer 3 - Outermost)
-    // -------------------------------------------------------------------------
-    const glassBackShape = createRoundedRectShape(W, H, R);
-    const glassBackExtrude = {
-      depth: 0.035,
-      bevelEnabled: true,
-      bevelSegments: 4,
-      bevelSize: 0.022,
-      bevelThickness: 0.022,
-    };
-    const glassBackGeom = new THREE.ExtrudeGeometry(glassBackShape, glassBackExtrude);
-    glassBackGeom.center();
-
-    const glassBackMesh = new THREE.Mesh(glassBackGeom, glassVisorMat);
-    glassBackMesh.position.set(0, 0, 0.032);
-    glassBackMesh.castShadow = true;
-    glassBackMesh.receiveShadow = true;
-    this.group.add(glassBackMesh);
   }
 
   updateFinish(finishConfig) {

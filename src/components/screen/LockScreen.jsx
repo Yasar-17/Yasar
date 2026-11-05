@@ -63,7 +63,10 @@ export const LockScreen = () => {
       tabIndex={0}
       role="button"
       aria-label="Lock screen. Press Enter, Space, or tap to unlock."
-      className="relative w-full h-full bg-[#080b10] text-[#E8EDF2] flex flex-col justify-between p-4 pt-1.5 pb-4 safe-bottom select-none cursor-pointer overflow-hidden font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7CF2C9] focus-visible:ring-inset"
+      className="relative w-full h-full text-[#E8EDF2] flex flex-col justify-between p-4 pt-1.5 pb-4 safe-bottom select-none cursor-pointer overflow-hidden font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7CF2C9] focus-visible:ring-inset"
+      style={{
+        background: 'radial-gradient(ellipse 110% 90% at 88% 22%, #084046 0%, #05262a 35%, #031417 65%, #02090b 100%)',
+      }}
       onClick={handleUnlock}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
@@ -72,13 +75,24 @@ export const LockScreen = () => {
       {/* 1. Top Hardware Status Bar */}
       <StatusBar />
 
-      {/* Subtle Monochrome Environmental Depth */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-30"
-        style={{
-          background: 'radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 70%)',
-        }}
-      />
+      {/* Signature Teal / Cyan Flowing Waves matching Reference Image */}
+      <svg 
+        className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80" 
+        viewBox="0 0 375 812" 
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path 
+          d="M 375,130 C 260,180 180,310 140,430 C 100,550 50,660 0,720 L 0,812 L 375,812 Z" 
+          fill="rgba(12, 70, 76, 0.35)" 
+        />
+        <path 
+          d="M 375,210 C 280,260 210,380 170,490 C 130,600 70,710 0,770" 
+          fill="none" 
+          stroke="rgba(28, 175, 186, 0.40)" 
+          strokeWidth="2" 
+        />
+      </svg>
 
       {/* 2. Clock & Date Display (Nothing OS Industrial Monospace) */}
       <div className="flex flex-col items-center text-center mt-6 z-10">

@@ -5,7 +5,7 @@ async function main() {
   console.log('--- Testing prsd.dev + Phone (4a) Pro Launch Integration ---');
   fs.mkdirSync('/tmp/nothing_test', { recursive: true });
 
-  const ff = spawn('firefox', ['--headless', '--remote-debugging-port=9223', 'http://localhost:4173']);
+  const ff = spawn('firefox', ['--headless', '--remote-debugging-port=9223', 'http://localhost:5173']);
   await new Promise((r) => setTimeout(r, 2000));
 
   let ws;
@@ -167,10 +167,12 @@ async function main() {
     })()`);
     await new Promise((r) => setTimeout(r, 800));
 
-    // Verify 16-Week GitHub Heatmap & Home Widgets
-    const githubHeatmap = await evalCode(`document.querySelectorAll('.contribution-grid i').length === 112`);
+    // Verify Reference Image Home Screen Widgets (Stretch & Eyes)
+    const stretchWidget = await evalCode(`!!document.querySelector('button[aria-label="Stretch media widget"]')`);
+    const eyesWidget = await evalCode(`!!document.querySelector('button[aria-label="Interactive Nothing Eyes Widget"]')`);
     const cameraIconExists = await evalCode(`!!document.querySelector('button[aria-label="Open Camera"]')`);
-    console.log('      GitHub Heatmap (112 tiles):', githubHeatmap ? 'PASS' : 'FAIL');
+    console.log('      Stretch Media Widget (Reference UI):', stretchWidget ? 'PASS' : 'FAIL');
+    console.log('      Interactive Eyes Widget (Reference UI):', eyesWidget ? 'PASS' : 'FAIL');
     console.log('      Camera App Icon on Home Screen:', cameraIconExists ? 'PASS' : 'FAIL');
 
     // TEST 5: Open In-Phone Camera App (140x Periscope & Glyph 3s Timer)

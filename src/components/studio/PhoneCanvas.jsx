@@ -182,8 +182,11 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     setSurfaceEl(surfaceDiv);
 
     // 6. Studio Lighting Rig
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111620, 0.7);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e2736, 0.95);
     webglScene.add(hemiLight);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.80);
+    webglScene.add(ambientLight);
 
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.85);
     keyLight.position.set(-3.5, 6, 8.5);
@@ -201,17 +204,25 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
     }
     webglScene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xe8edf2, 0.75);
-    fillLight.position.set(4.5, 1.5, 3.5);
+    const fillLight = new THREE.DirectionalLight(0xdde8f5, 1.25);
+    fillLight.position.set(4.5, 1.5, 6.0);
     webglScene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xf8fafc, 1.6);
-    rimLight.position.set(-2, 4.5, -6.5);
-    webglScene.add(rimLight);
+    const topLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    topLight.position.set(0, 7.5, 5.0);
+    webglScene.add(topLight);
 
-    const rearFillLight = new THREE.DirectionalLight(0xdde8f5, 1.25);
-    rearFillLight.position.set(2.5, -2, -6.0);
-    webglScene.add(rearFillLight);
+    const rimLeft = new THREE.DirectionalLight(0xc8dcf0, 1.1);
+    rimLeft.position.set(-5.0, 2.0, 2.0);
+    webglScene.add(rimLeft);
+
+    const rimRight = new THREE.DirectionalLight(0xc8dcf0, 1.1);
+    rimRight.position.set(5.0, 2.0, 2.0);
+    webglScene.add(rimRight);
+
+    const backBounce = new THREE.DirectionalLight(0x8fa8c8, 0.7);
+    backBounce.position.set(0, -5.0, 4.0);
+    webglScene.add(backBounce);
 
     // 7. Initialize Glyph Texture Manager & Build Modular Phone Assembly
     const glyphMgr = new GlyphTextureManager();
@@ -249,7 +260,8 @@ export const PhoneCanvas = ({ children, finish = 'silver', flipped = false, onFl
       keyLight.position.x = -3.5 + mx * 1.6;
       keyLight.position.y = 6.0 + my * 1.4;
       fillLight.position.x = 4.5 - mx * 1.2;
-      rimLight.position.x = -2.0 - mx * 1.0;
+      rimLeft.position.x = -5.0 - mx * 1.0;
+      rimRight.position.x = 5.0 + mx * 1.0;
 
       // When dragging is idle, apply gentle resting float and mouse parallax
       let targetX = targetRotRef.current.x;

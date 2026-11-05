@@ -46,24 +46,28 @@ export const PATTERN_GENERATORS = {
 
   // 2. Idle State: Exact Nothing Phone Double-Peak Soundwave / Equalizer Waveform from Reference Image
   idle: (led, t) => {
-    // Exact dual-peak soundwave geometry matching reference image:
-    // Peak 1 at col -3, Peak 2 at col +3, center valley at col 0
-    const col = led.col;
-    const row = led.row;
+    // Exact symmetric dual-peak soundwave matching reference image:
+    // Left peak centered at col -3, right peak centered at col +2 / +3
+    const waveHeights = {
+      '-5': 1,
+      '-4': 2,
+      '-3': 3,
+      '-2': 2,
+      '-1': 1,
+      '0': 1,
+      '1': 2,
+      '2': 3,
+      '3': 3,
+      '4': 2,
+      '5': 1,
+    };
 
-    // Envelope heights for columns -6 to +6:
-    // [-6: 0, -5: 1, -4: 3, -3: 4, -2: 2, -1: 1, 0: 0, 1: 1, 2: 2, 3: 4, 4: 3, 5: 1, 6: 0]
-    const peakLeft = Math.max(0, 4 - Math.abs(col - (-3)) * 1.5);
-    const peakRight = Math.max(0, 4 - Math.abs(col - 3) * 1.5);
-    const waveTop = Math.max(peakLeft, peakRight);
-    const waveBottom = -Math.min(2, Math.floor(waveTop * 0.5));
+    const colStr = led.col.toString();
+    const maxRow = waveHeights[colStr];
 
-    const isSoundwave = row <= waveTop && row >= waveBottom && Math.abs(col) <= 5;
-    const isBaseline = (row === 0 || row === -1) && Math.abs(col) <= 5;
-
-    if (isSoundwave || isBaseline) {
-      // Subtle organic breathing animation across the waveform
-      const breath = Math.sin(t * 2.2 + col * 0.25) * 0.08 + 0.92;
+    if (maxRow !== undefined && Math.abs(led.row) <= maxRow) {
+      // Crisp illuminated white diode with subtle organic breathing
+      const breath = Math.sin(t * 1.8 + led.col * 0.2) * 0.05 + 0.95;
       return breath;
     }
     return 0.04; // Unlit phosphor diode background

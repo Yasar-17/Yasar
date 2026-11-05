@@ -1,198 +1,415 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePhone } from '../../context/PhoneContext';
 import { StatusBar } from './StatusBar';
-import { AppIcon } from './AppIcon';
-import { PROFILE } from '../../data';
-import { GITHUB_ACTIVITY } from '../../data/githubContributions';
 import { 
-  UserIcon, 
-  FolderIcon, 
-  CpuIcon, 
-  BriefcaseIcon, 
-  BookOpenIcon, 
-  FileTextIcon, 
-  TerminalIcon, 
-  SettingsIcon, 
-  GithubIcon, 
-  MailIcon,
-  CameraIcon,
+  PhoneIcon, 
+  MessageIcon, 
+  BrowserIcon, 
+  CameraIcon, 
   SearchIcon,
-  ExternalLinkIcon 
+  ChevronUpIcon,
+  GridIcon,
+  SparklesIcon,
+  HeadphonesIcon
 } from '../../ui/Icons';
+import { playSound } from '../../audio/soundEngine';
 
 export const HomeScreen = () => {
-  const { activeWallpaper, openApp } = usePhone();
-  const [time, setTime] = useState('16:20');
-  const [dateInfo, setDateInfo] = useState({ day: 'TUE', date: '03', month: 'NOV', year: '2026' });
+  const { 
+    openApp, 
+    soundEnabled, 
+    toggleSound, 
+    activeGlyphPattern, 
+    setGlyphPattern,
+    activeWallpaper,
+    setActiveWallpaper 
+  } = usePhone();
 
+  const [time, setTime] = useState('10:20');
+  const [eyePos, setEyePos] = useState({ x: 0, y: 0 });
+  const [isBlinking, setIsBlinking] = useState(false);
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const containerRef = useRef(null);
+
+  // Sync clock
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       const h = String(now.getHours()).padStart(2, '0');
       const m = String(now.getMinutes()).padStart(2, '0');
       setTime(`${h}:${m}`);
-
-      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-      setDateInfo({
-        day: days[now.getDay()],
-        date: String(now.getDate()).padStart(2, '0'),
-        month: months[now.getMonth()],
-        year: String(now.getFullYear()),
-      });
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Wallpaper backgrounds (Authentic Nothing OS teal-cyan wave aesthetic from reference image)
-  const getWallpaperStyle = () => {
-    switch (activeWallpaper) {
-      case 'obsidian':
-        return {
-          background: 'radial-gradient(circle at 85% 25%, #0e3439 0%, #082124 35%, #051417 65%, #030a0c 100%)',
-        };
-      case 'silver':
-        return {
-          background: 'linear-gradient(135deg, #18202c 0%, #0d1219 50%, #070a0e 100%)',
-        };
-      case 'carbon':
-        return {
-          background: 'linear-gradient(135deg, #111620 0%, #0b0f16 50%, #06090e 100%)',
-        };
-      case 'graphite':
-        return {
-          background: 'linear-gradient(135deg, #1c2432 0%, #121822 50%, #0a0d13 100%)',
-        };
-      default:
-        return {
-          background: 'radial-gradient(circle at 85% 25%, #0e3439 0%, #082124 35%, #051417 65%, #030a0c 100%)',
-        };
-    }
+  // Periodic blinking for the iconic Eyes widget
+  useEffect(() => {
+    const blinkInterval = setInterval(() => {
+      setIsBlinking(true);
+      setTimeout(() => setIsBlinking(false), 160);
+    }, 4200);
+    return () => clearInterval(blinkInterval);
+  }, []);
+
+  // Mouse tracking for the Eyes widget
+  const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - (rect.left + rect.width / 2);
+    const y = e.clientY - (rect.top + rect.height / 2);
+    const maxOffset = 5;
+    const angle = Math.atan2(y, x);
+    const dist = Math.min(maxOffset, Math.hypot(x, y) / 25);
+    setEyePos({
+      x: Math.cos(angle) * dist,
+      y: Math.sin(angle) * dist,
+    });
+  };
+
+  const handleToggleTheme = () => {
+    playSound('click', soundEnabled);
+    const wallpapers = ['obsidian', 'silver', 'carbon', 'graphite'];
+    const nextIdx = (wallpapers.indexOf(activeWallpaper) + 1) % wallpapers.length;
+    setActiveWallpaper(wallpapers[nextIdx]);
+  };
+
+  const handleToggleGlyph = () => {
+    playSound('click', soundEnabled);
+    const patterns = ['idle', 'projects', 'about', 'contact', 'equalizer'];
+    const nextIdx = (patterns.indexOf(activeGlyphPattern) + 1) % patterns.length;
+    setGlyphPattern(patterns[nextIdx]);
+  };
+
+  const handleToggleMusic = () => {
+    playSound('power', soundEnabled);
+    setIsPlayingMusic(!isPlayingMusic);
   };
 
   return (
     <div 
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
       className="relative w-full h-full flex flex-col justify-between text-[#E8EDF2] p-3 sm:p-3.5 pt-1 pb-2 safe-bottom select-none overflow-hidden transition-all duration-500 font-sans"
-      style={getWallpaperStyle()}
+      style={{
+        background: 'radial-gradient(ellipse 110% 90% at 88% 22%, #084046 0%, #05262a 35%, #031417 65%, #02090b 100%)',
+      }}
     >
       
-      {/* 1. Status Bar */}
+      {/* 1. Hardware Status Bar */}
       <StatusBar />
 
-      {/* Abstract Curved Wave Sheen from Reference Image */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-45"
-        style={{
-          background: 'radial-gradient(ellipse 110% 70% at 90% 20%, rgba(20, 95, 102, 0.55) 0%, rgba(10, 48, 52, 0.25) 45%, transparent 75%)',
-        }}
-      />
+      {/* Signature Teal / Cyan Flowing Waves matching Reference Image */}
+      <svg 
+        className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80" 
+        viewBox="0 0 375 812" 
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#14838b" stopOpacity="0.45" />
+            <stop offset="60%" stopColor="#08383e" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#020d0f" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="waveGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#1ba5af" stopOpacity="0.30" />
+            <stop offset="100%" stopColor="#031518" stopOpacity="0" />
+          </linearGradient>
+        </defs>
 
-      {/* Subtle Environmental Grid Texture */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.035]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px)
-          `,
-          backgroundSize: '24px 24px',
-        }}
-      />
+        {/* Outer curved wave dunes */}
+        <path 
+          d="M 375,130 C 260,180 180,310 140,430 C 100,550 50,660 0,720 L 0,812 L 375,812 Z" 
+          fill="url(#waveGrad1)" 
+        />
+        <path 
+          d="M 375,210 C 280,260 210,380 170,490 C 130,600 70,710 0,770" 
+          fill="none" 
+          stroke="rgba(28, 175, 186, 0.45)" 
+          strokeWidth="2" 
+        />
+        <path 
+          d="M 375,280 C 295,330 235,440 200,540 C 165,640 100,740 0,800" 
+          fill="none" 
+          stroke="rgba(18, 125, 133, 0.35)" 
+          strokeWidth="2" 
+        />
+      </svg>
 
-      {/* 2. TOP BENTO WIDGETS SECTION (prsd.dev style adapted for Nothing OS) */}
-      <div className="relative z-10 home-widgets my-0.5">
+      {/* 2. Top Bento Widgets Section */}
+      <div className="relative z-10 grid grid-cols-2 gap-3 mt-1.5 px-0.5">
         
-        {/* Widget A: GitHub 16-Week Activity Heatmap */}
+        {/* Top-Left Widget: "Stretch" Media Player */}
         <button
           type="button"
-          onClick={() => openApp('github')}
-          className="github-widget text-left group cursor-pointer focus:outline-none"
-          aria-label={`GitHub contributions, 16 weeks ending today. Total ${GITHUB_ACTIVITY.totalContributions} contributions.`}
+          onClick={handleToggleMusic}
+          className="h-[120px] rounded-[26px] bg-[#10141a]/85 backdrop-blur-md border border-white/10 p-3 flex flex-col justify-between text-left group hover:border-[#1ba5af]/40 hover:bg-[#141a22] transition-all cursor-pointer shadow-lg active:scale-98"
+          aria-label="Stretch media widget"
         >
-          <div className="github-widget-heading">
-            <GithubIcon className="w-3.5 h-3.5 text-[#E8EDF2] group-hover:text-[#7CF2C9] transition-colors" />
-            <span className="font-mono tracking-tight text-[#E8EDF2] group-hover:text-white">GitHub Activity</span>
-            <small>16 wks · @{GITHUB_ACTIVITY.username}</small>
+          <div className="flex items-start justify-between">
+            {/* Album Art Thumbnail */}
+            <div className="w-9 h-9 rounded-xl bg-[#090d13] border border-white/15 overflow-hidden flex items-center justify-center relative">
+              <div className="w-full h-full bg-gradient-to-br from-[#1f2835] to-[#0c1016] flex items-center justify-center">
+                <span className="w-2.5 h-2.5 rounded-full bg-white/40 animate-ping" />
+              </div>
+            </div>
+
+            {/* Photo Metadata Label */}
+            <div className="text-right">
+              <span className="block text-[8px] font-mono text-[#8a96a3] tracking-wider uppercase">PHOTO</span>
+              <span className="block text-[8px] font-mono text-[#667382] tracking-widest">44MM · ST</span>
+            </div>
           </div>
 
-          {/* 16-Week Heatmap Grid (112 tiles) */}
-          <div className="contribution-grid" aria-hidden="true">
-            {GITHUB_ACTIVITY.days.map((d) => (
-              <i 
-                key={d.date} 
-                data-level={d.level} 
-                title={`${d.date}: ${d.level > 0 ? `${d.level * 2} commits` : 'No contributions'}`}
-              />
-            ))}
+          <div>
+            <span className="text-[10px] font-mono text-[#7a8897] tracking-wider uppercase block">
+              {isPlayingMusic ? 'NOW PLAYING' : 'TRACK'}
+            </span>
+            <strong className="text-sm font-sans font-medium tracking-tight text-white block mt-0.5">
+              Stretch
+            </strong>
           </div>
         </button>
 
-        {/* Widgets Row B: Local Time Widget + Availability / Quick Contact Widget */}
-        <div className="widgets-row">
-          
-          {/* Sub-widget 1: Bengaluru Local Time */}
-          <div className="time-widget">
-            <span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#7CF2C9] animate-pulse shrink-0" />
-              <span>IST · Bengaluru</span>
-            </span>
-            <strong>{time}</strong>
-            <small>{dateInfo.day}, {dateInfo.month} {dateInfo.date}</small>
-          </div>
-
-          {/* Sub-widget 2: Availability & Direct Contact Trigger */}
+        {/* Top-Right Widget: Circular Dot-Matrix Weather Display */}
+        <div className="flex justify-end">
           <button
             type="button"
-            onClick={() => openApp('contact')}
-            className="call-widget focus:outline-none group"
-            aria-label="Direct contact and availability status"
+            onClick={() => openApp('about')}
+            className="w-[120px] h-[120px] rounded-full bg-[#10141a]/90 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center group hover:border-[#1ba5af]/50 hover:bg-[#141a22] transition-all cursor-pointer shadow-lg active:scale-95 relative"
+            aria-label="Bengaluru Weather, 24 degrees Celsius, scattered rain"
           >
-            <div className="call-head">
-              <span className="call-badge">Status</span>
-              <small>Available</small>
-            </div>
-            <div className="call-event">
-              <strong>Open for roles</strong>
-              <span>AI/ML & Frontend</span>
-            </div>
-          </button>
+            {/* White Dot-Matrix Cloud & Falling Rain Dots */}
+            <div className="flex flex-col items-center justify-center scale-95" aria-hidden="true">
+              {/* Dot-matrix cloud top */}
+              <div className="flex space-x-1 mb-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-white opacity-90" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white opacity-90" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white opacity-90" />
+              </div>
+              <div className="flex space-x-1 mb-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              </div>
+              <div className="flex space-x-1 mb-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              </div>
 
+              {/* Falling rain dots */}
+              <div className="flex space-x-2">
+                <span className="w-1 h-1 rounded-full bg-[#7CF2C9] animate-pulse" />
+                <span className="w-1 h-1 rounded-full bg-[#7CF2C9] animate-pulse delay-100" />
+                <span className="w-1 h-1 rounded-full bg-[#7CF2C9] animate-pulse delay-200" />
+              </div>
+            </div>
+
+            <span className="text-[10px] font-mono text-[#828f9f] mt-1.5 tracking-tight group-hover:text-white transition-colors">
+              BLR · 24°C
+            </span>
+          </button>
         </div>
 
       </div>
 
-      {/* 3. 8 Nothing-Inspired Monochrome App Icons Grid */}
-      <nav className="relative z-10 grid grid-cols-4 gap-y-2 gap-x-1.5 px-0.5 my-auto" aria-label="Applications">
-        <AppIcon id="about" label="About" icon={UserIcon} />
-        <AppIcon id="projects" label="Projects" icon={FolderIcon} badge />
-        <AppIcon id="skills" label="Skills" icon={CpuIcon} />
-        <AppIcon id="experience" label="Timeline" icon={BriefcaseIcon} />
-        <AppIcon id="camera" label="Camera" icon={CameraIcon} badge />
-        <AppIcon id="case-studies" label="Studies" icon={BookOpenIcon} />
-        <AppIcon id="resume" label="Resume" icon={FileTextIcon} />
-        <AppIcon id="settings" label="Settings" icon={SettingsIcon} />
+      {/* 3. Middle Row: Earbuds Card */}
+      <div className="relative z-10 grid grid-cols-2 gap-3 my-1 px-0.5">
+        
+        {/* Middle-Left: Earbuds Card */}
+        <button
+          type="button"
+          onClick={toggleSound}
+          className="h-[105px] rounded-[26px] bg-[#10141a]/85 backdrop-blur-md border border-white/10 p-2.5 flex flex-col items-center justify-center group hover:border-[#1ba5af]/40 hover:bg-[#141a22] transition-all cursor-pointer shadow-lg active:scale-98"
+          aria-label={`Earbuds battery status 90% each. Sound is ${soundEnabled ? 'enabled' : 'muted'}.`}
+        >
+          {/* Pair of White Glyphs Earbuds */}
+          <div className="flex items-center space-x-2.5 mb-2" aria-hidden="true">
+            {/* Left Earbud */}
+            <div className="flex flex-col items-center">
+              <div className="w-3.5 h-3.5 rounded-full border border-white bg-white/20 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              </div>
+              <div className="w-1 h-3.5 bg-white rounded-full mt-[-1px]" />
+            </div>
+
+            {/* Right Earbud */}
+            <div className="flex flex-col items-center">
+              <div className="w-3.5 h-3.5 rounded-full border border-white bg-white/20 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              </div>
+              <div className="w-1 h-3.5 bg-white rounded-full mt-[-1px]" />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 text-[11px] font-mono text-[#8a96a3]">
+            <span>90%</span>
+            <span className="text-[#3b4758]">·</span>
+            <span>90%</span>
+          </div>
+        </button>
+
+        {/* Middle-Right: Open negative space where cyan wave flows gracefully */}
+        <div className="h-[105px] flex items-center justify-center pointer-events-none opacity-40">
+          <span className="text-[10px] font-mono tracking-widest text-[#1da8b3] uppercase">
+            YASAR.DEV
+          </span>
+        </div>
+
+      </div>
+
+      {/* 4. Lower Section: 2x2 Quick Toggles + Iconic "Eyes" Widget */}
+      <div className="relative z-10 grid grid-cols-2 gap-3 mb-1 px-0.5">
+        
+        {/* Lower-Left: 2x2 Circular Quick Toggle Buttons */}
+        <div className="grid grid-cols-2 gap-2 h-[120px]">
+          
+          {/* 1. Red Contrast / Theme Toggle */}
+          <button
+            type="button"
+            onClick={handleToggleTheme}
+            className="w-full h-full rounded-full bg-[#D71921] hover:bg-[#eb1f28] flex items-center justify-center text-white shadow-md active:scale-90 transition-all cursor-pointer"
+            aria-label="Toggle Color Theme"
+            title="Toggle Finish / Theme"
+          >
+            {/* Half-moon / Contrast icon */}
+            <div className="w-4 h-4 rounded-full border border-white overflow-hidden flex" aria-hidden="true">
+              <div className="w-1/2 h-full bg-white" />
+              <div className="w-1/2 h-full bg-transparent" />
+            </div>
+          </button>
+
+          {/* 2. Up Arrow Button (Open Projects) */}
+          <button
+            type="button"
+            onClick={() => openApp('projects')}
+            className="w-full h-full rounded-full bg-[#10141a]/90 hover:bg-[#18202a] border border-white/10 flex items-center justify-center text-white/90 active:scale-90 transition-all cursor-pointer"
+            aria-label="View Projects"
+            title="View Projects"
+          >
+            <ChevronUpIcon className="w-4 h-4 text-[#E8EDF2]" strokeWidth="2" />
+          </button>
+
+          {/* 3. Grid Button (Open Skills) */}
+          <button
+            type="button"
+            onClick={() => openApp('skills')}
+            className="w-full h-full rounded-full bg-[#10141a]/90 hover:bg-[#18202a] border border-white/10 flex items-center justify-center text-white/90 active:scale-90 transition-all cursor-pointer"
+            aria-label="View Skills"
+            title="View Skills"
+          >
+            <GridIcon className="w-4 h-4 text-[#E8EDF2]" strokeWidth="2" />
+          </button>
+
+          {/* 4. Glyph Flower Button (Toggle Glyph Pattern) */}
+          <button
+            type="button"
+            onClick={handleToggleGlyph}
+            className="w-full h-full rounded-full bg-[#10141a]/90 hover:bg-[#18202a] border border-white/10 flex items-center justify-center text-white/90 active:scale-90 transition-all cursor-pointer"
+            aria-label="Cycle Glyph Pattern"
+            title="Cycle Glyph Pattern"
+          >
+            <SparklesIcon className="w-4 h-4 text-[#7CF2C9]" strokeWidth="2" />
+          </button>
+
+        </div>
+
+        {/* Lower-Right: Iconic Interactive Nothing "Eyes" Widget */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsBlinking(true);
+            setTimeout(() => setIsBlinking(false), 200);
+            playSound('click', soundEnabled);
+          }}
+          className="h-[120px] rounded-[26px] bg-[#10141a]/90 backdrop-blur-md border border-white/10 p-3 flex items-center justify-center group hover:border-[#1ba5af]/50 hover:bg-[#141a22] transition-all cursor-pointer shadow-lg active:scale-98 relative overflow-hidden"
+          aria-label="Interactive Nothing Eyes Widget"
+        >
+          {/* Two White Glowing Eyes that track cursor and blink */}
+          <div 
+            className={`flex items-center space-x-4 transition-transform duration-100 ${isBlinking ? 'scale-y-[0.08]' : 'scale-y-100'}`}
+            style={{
+              transform: `translate(${eyePos.x}px, ${eyePos.y}px) ${isBlinking ? 'scaleY(0.08)' : 'scaleY(1)'}`,
+            }}
+          >
+            {/* Left Eye */}
+            <div className="w-5 h-5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.85)] flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-[#0b0e14] opacity-20" />
+            </div>
+
+            {/* Right Eye */}
+            <div className="w-5 h-5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.85)] flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-[#0b0e14] opacity-20" />
+            </div>
+          </div>
+        </button>
+
+      </div>
+
+      {/* 5. Bottom Dock with 4 Core Apps */}
+      <nav 
+        className="relative z-10 bg-[#10141a]/90 backdrop-blur-md border border-white/10 rounded-[28px] p-2 px-3 shadow-xl flex items-center justify-around my-1" 
+        aria-label="Quick Applications Dock"
+      >
+        {/* 1. Phone App */}
+        <button
+          type="button"
+          onClick={() => openApp('contact')}
+          className="w-11 h-11 rounded-full bg-[#161c24] hover:bg-[#1f2834] border border-white/10 flex items-center justify-center text-[#E8EDF2] hover:text-white transition-all active:scale-90 shadow-sm"
+          aria-label="Open Phone & Contact"
+        >
+          <PhoneIcon className="w-5 h-5" strokeWidth="2" />
+        </button>
+
+        {/* 2. Messages App */}
+        <button
+          type="button"
+          onClick={() => openApp('contact')}
+          className="w-11 h-11 rounded-full bg-[#161c24] hover:bg-[#1f2834] border border-white/10 flex items-center justify-center text-[#E8EDF2] hover:text-white transition-all active:scale-90 shadow-sm"
+          aria-label="Open Messages"
+        >
+          <MessageIcon className="w-5 h-5" strokeWidth="2" />
+        </button>
+
+        {/* 3. Browser App (GitHub) */}
+        <button
+          type="button"
+          onClick={() => openApp('github')}
+          className="w-11 h-11 rounded-full bg-[#161c24] hover:bg-[#1f2834] border border-white/10 flex items-center justify-center text-[#E8EDF2] hover:text-white transition-all active:scale-90 shadow-sm"
+          aria-label="Open Browser & GitHub"
+        >
+          <BrowserIcon className="w-5 h-5" strokeWidth="2" />
+        </button>
+
+        {/* 4. Camera App (140x Periscope Ultra Zoom) */}
+        <button
+          type="button"
+          onClick={() => openApp('camera')}
+          className="w-11 h-11 rounded-full bg-[#161c24] hover:bg-[#1f2834] border border-white/10 flex items-center justify-center text-[#E8EDF2] hover:text-white transition-all active:scale-90 shadow-sm"
+          aria-label="Open Camera"
+        >
+          <CameraIcon className="w-5 h-5" strokeWidth="2" />
+        </button>
       </nav>
 
-      {/* 4. Minimal Dock with 4 Core Apps */}
-      <nav className="relative z-10 bg-[#121620]/80 backdrop-blur-md border border-[#202937] rounded-[24px] sm:rounded-[26px] p-1.5 px-2.5 shadow-lg flex items-center justify-around" aria-label="Quick Dock">
-        <AppIcon id="terminal" label="CLI" icon={TerminalIcon} shape="circle" />
-        <AppIcon id="projects" label="Work" icon={FolderIcon} shape="circle" />
-        <AppIcon id="github" label="GitHub" icon={GithubIcon} shape="circle" />
-        <AppIcon id="contact" label="Contact" icon={MailIcon} shape="circle" badge />
-      </nav>
-
-      {/* 5. Floating Search Bar Pill from Reference Image */}
-      <div className="relative z-10 w-full flex items-center justify-center pt-1.5 pb-0.5">
+      {/* 6. Floating Search Bar Pill from Reference Image */}
+      <div className="relative z-10 w-full flex items-center justify-center pt-0.5 pb-0.5">
         <button
           type="button"
           onClick={() => openApp('terminal')}
-          className="w-full flex items-center justify-center space-x-2 bg-[#10141c]/70 hover:bg-[#151b24] border border-[#1e2736] py-1.5 px-4 rounded-full text-xs font-mono text-[#828f9f] transition-all cursor-pointer shadow-sm active:scale-95"
-          aria-label="Search or Open CLI"
+          className="w-full flex items-center justify-center space-x-2 bg-[#10141a]/85 hover:bg-[#161c24] border border-white/10 py-2 px-4 rounded-full text-xs font-mono text-[#8a96a3] transition-all cursor-pointer shadow-md active:scale-98"
+          aria-label="Search or Open Terminal"
         >
-          <SearchIcon className="w-3.5 h-3.5 text-[#7CF2C9]" />
-          <span className="text-[11px] font-mono tracking-tight text-[#9AA6B2]">Search</span>
+          <SearchIcon className="w-3.5 h-3.5 text-[#7CF2C9]" strokeWidth="2" />
+          <span className="text-[12px] font-mono tracking-tight text-[#9AA6B2]">Search</span>
         </button>
       </div>
 
