@@ -6,10 +6,23 @@ async function main() {
   fs.mkdirSync('/tmp/nothing_test', { recursive: true });
 
   const ff = spawn('firefox', ['--headless', '--remote-debugging-port=9223', 'http://localhost:4173']);
-  await new Promise((r) => setTimeout(r, 2200));
+  await new Promise((r) => setTimeout(r, 2000));
+
+  let ws;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    try {
+      ws = new WebSocket('ws://127.0.0.1:9223/session');
+      await new Promise((res, rej) => {
+        ws.onopen = res;
+        ws.onerror = rej;
+      });
+      break;
+    } catch {
+      await new Promise((r) => setTimeout(r, 800));
+    }
+  }
 
   try {
-    const ws = new WebSocket('ws://127.0.0.1:9223/session');
     let msgId = 1;
     const pending = new Map();
 
@@ -31,10 +44,7 @@ async function main() {
       }
     };
 
-    await new Promise((res, rej) => {
-      ws.onopen = res;
-      ws.onerror = rej;
-    });
+    // WebSocket connection established successfully
 
     await send('session.new', { capabilities: {} });
     const tree = await send('browsingContext.getTree', {});

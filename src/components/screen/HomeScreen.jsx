@@ -16,6 +16,7 @@ import {
   GithubIcon, 
   MailIcon,
   CameraIcon,
+  SearchIcon,
   ExternalLinkIcon 
 } from '../../ui/Icons';
 
@@ -45,27 +46,48 @@ export const HomeScreen = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Wallpaper backgrounds (Monochrome Nothing OS aesthetic)
-  const getWallpaperClass = () => {
+  // Wallpaper backgrounds (Authentic Nothing OS teal-cyan wave aesthetic from reference image)
+  const getWallpaperStyle = () => {
     switch (activeWallpaper) {
       case 'obsidian':
-        return 'bg-[#080a0f]';
+        return {
+          background: 'radial-gradient(circle at 85% 25%, #0e3439 0%, #082124 35%, #051417 65%, #030a0c 100%)',
+        };
       case 'silver':
-        return 'bg-[#151a22]';
+        return {
+          background: 'linear-gradient(135deg, #18202c 0%, #0d1219 50%, #070a0e 100%)',
+        };
       case 'carbon':
-        return 'bg-[#0e1219]';
+        return {
+          background: 'linear-gradient(135deg, #111620 0%, #0b0f16 50%, #06090e 100%)',
+        };
       case 'graphite':
-        return 'bg-[#1a212c]';
+        return {
+          background: 'linear-gradient(135deg, #1c2432 0%, #121822 50%, #0a0d13 100%)',
+        };
       default:
-        return 'bg-[#080a0f]';
+        return {
+          background: 'radial-gradient(circle at 85% 25%, #0e3439 0%, #082124 35%, #051417 65%, #030a0c 100%)',
+        };
     }
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col justify-between ${getWallpaperClass()} text-[#E8EDF2] p-3 sm:p-3.5 pt-1 pb-2 safe-bottom select-none overflow-hidden transition-colors duration-500 font-sans`}>
+    <div 
+      className="relative w-full h-full flex flex-col justify-between text-[#E8EDF2] p-3 sm:p-3.5 pt-1 pb-2 safe-bottom select-none overflow-hidden transition-all duration-500 font-sans"
+      style={getWallpaperStyle()}
+    >
       
       {/* 1. Status Bar */}
       <StatusBar />
+
+      {/* Abstract Curved Wave Sheen from Reference Image */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-45"
+        style={{
+          background: 'radial-gradient(ellipse 110% 70% at 90% 20%, rgba(20, 95, 102, 0.55) 0%, rgba(10, 48, 52, 0.25) 45%, transparent 75%)',
+        }}
+      />
 
       {/* Subtle Environmental Grid Texture */}
       <div 
@@ -160,6 +182,19 @@ export const HomeScreen = () => {
         <AppIcon id="github" label="GitHub" icon={GithubIcon} shape="circle" />
         <AppIcon id="contact" label="Contact" icon={MailIcon} shape="circle" badge />
       </nav>
+
+      {/* 5. Floating Search Bar Pill from Reference Image */}
+      <div className="relative z-10 w-full flex items-center justify-center pt-1.5 pb-0.5">
+        <button
+          type="button"
+          onClick={() => openApp('terminal')}
+          className="w-full flex items-center justify-center space-x-2 bg-[#10141c]/70 hover:bg-[#151b24] border border-[#1e2736] py-1.5 px-4 rounded-full text-xs font-mono text-[#828f9f] transition-all cursor-pointer shadow-sm active:scale-95"
+          aria-label="Search or Open CLI"
+        >
+          <SearchIcon className="w-3.5 h-3.5 text-[#7CF2C9]" />
+          <span className="text-[11px] font-mono tracking-tight text-[#9AA6B2]">Search</span>
+        </button>
+      </div>
 
     </div>
   );

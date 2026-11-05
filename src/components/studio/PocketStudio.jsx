@@ -30,7 +30,7 @@ export const PocketStudio = () => {
     triggerSnapshot
   } = usePhone();
 
-  const [finish, setFinish] = useState('silver');
+  const [finish, setFinish] = useState('obsidian');
   const [flipped, setFlipped] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [show3DOnMobile, setShow3DOnMobile] = useState(false);

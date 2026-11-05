@@ -44,14 +44,29 @@ export const PATTERN_GENERATORS = {
   // 1. Off State
   off: () => 0.0,
 
-  // 2. Idle State: Organic slow breathing radial wave (subtle, non-distracting)
+  // 2. Idle State: Exact Nothing Phone Double-Peak Soundwave / Equalizer Waveform from Reference Image
   idle: (led, t) => {
-    // Gentle radial expansion every 3.2s
-    const wave = Math.sin(t * 1.8 - led.dist * 3.5);
-    const breathing = Math.sin(t * 1.2) * 0.15 + 0.3;
-    // Base ambient glow + subtle wave ripple
-    const raw = (wave * 0.5 + 0.5) * 0.25 + breathing * 0.6;
-    return Math.max(0.08, Math.min(0.55, raw));
+    // Exact dual-peak soundwave geometry matching reference image:
+    // Peak 1 at col -3, Peak 2 at col +3, center valley at col 0
+    const col = led.col;
+    const row = led.row;
+
+    // Envelope heights for columns -6 to +6:
+    // [-6: 0, -5: 1, -4: 3, -3: 4, -2: 2, -1: 1, 0: 0, 1: 1, 2: 2, 3: 4, 4: 3, 5: 1, 6: 0]
+    const peakLeft = Math.max(0, 4 - Math.abs(col - (-3)) * 1.5);
+    const peakRight = Math.max(0, 4 - Math.abs(col - 3) * 1.5);
+    const waveTop = Math.max(peakLeft, peakRight);
+    const waveBottom = -Math.min(2, Math.floor(waveTop * 0.5));
+
+    const isSoundwave = row <= waveTop && row >= waveBottom && Math.abs(col) <= 5;
+    const isBaseline = (row === 0 || row === -1) && Math.abs(col) <= 5;
+
+    if (isSoundwave || isBaseline) {
+      // Subtle organic breathing animation across the waveform
+      const breath = Math.sin(t * 2.2 + col * 0.25) * 0.08 + 0.92;
+      return breath;
+    }
+    return 0.04; // Unlit phosphor diode background
   },
 
   // 3. Projects Pattern: Stepped digital cascade / build sequence from bottom to top

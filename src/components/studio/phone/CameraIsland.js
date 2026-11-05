@@ -5,41 +5,29 @@ export class CameraIsland {
     this.group = new THREE.Group();
     this.group.name = "CameraIsland";
 
-    // Common shared materials for intricate camera hardware
-    const darkHousingMat = new THREE.MeshStandardMaterial({
-      color: 0x121720,
+    // Premium dark metal finish for camera housings
+    const bezelMat = new THREE.MeshStandardMaterial({
+      color: 0x1b2029,
+      metalness: 0.90,
+      roughness: 0.25,
+    });
+
+    const innerKnurlMat = new THREE.MeshStandardMaterial({
+      color: 0x101318,
       metalness: 0.85,
-      roughness: 0.28,
+      roughness: 0.35,
     });
 
-    const knurledRingMat = new THREE.MeshStandardMaterial({
-      color: 0x242d3b,
-      metalness: 0.92,
-      roughness: 0.22,
-    });
-
-    const goldContactMat = new THREE.MeshStandardMaterial({
-      color: 0xd4af37,
-      metalness: 0.95,
-      roughness: 0.15,
-    });
-
-    const periscopeMirrorMat = new THREE.MeshPhysicalMaterial({
-      color: 0x050c18,
-      metalness: 0.95,
-      roughness: 0.05,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.03,
-    });
+    const pupilMat = new THREE.MeshBasicMaterial({ color: 0x020406 });
+    const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 });
 
     // -------------------------------------------------------------------------
-    // 1. Transparent Nano-Injection Molded Camera Visor Platform
+    // 1. Upper Visor Sculpted Glass Shield (Spans Camera + Display Pod)
     // -------------------------------------------------------------------------
     const visorShape = new THREE.Shape();
-    // Rounded rectangular visor shape covering the left camera pod
-    const vw = 1.62;
-    const vh = 2.45;
-    const vr = 0.35;
+    const vw = 3.12;
+    const vh = 2.05;
+    const vr = 0.38;
     visorShape.moveTo(-vw / 2 + vr, -vh / 2);
     visorShape.lineTo(vw / 2 - vr, -vh / 2);
     visorShape.quadraticCurveTo(vw / 2, -vh / 2, vw / 2, -vh / 2 + vr);
@@ -50,229 +38,183 @@ export class CameraIsland {
     visorShape.lineTo(-vw / 2, -vh / 2 + vr);
     visorShape.quadraticCurveTo(-vw / 2, -vh / 2, -vw / 2 + vr, -vh / 2);
 
-    const visorExtrude = { depth: 0.035, bevelEnabled: true, bevelSegments: 3, bevelSize: 0.02, bevelThickness: 0.02 };
+    const visorExtrude = {
+      depth: 0.038,
+      bevelEnabled: true,
+      bevelSegments: 4,
+      bevelSize: 0.025,
+      bevelThickness: 0.025,
+    };
     const visorGeom = new THREE.ExtrudeGeometry(visorShape, visorExtrude);
     visorGeom.center();
 
-    const visorGlassMat = new THREE.MeshPhysicalMaterial({
-      color: 0x111620,
-      transmission: 0.75,
-      opacity: 0.9,
+    const visorMat = new THREE.MeshPhysicalMaterial({
+      color: 0x080c12,
+      transmission: 0.82,
+      opacity: 0.92,
       transparent: true,
-      roughness: 0.12,
+      roughness: 0.08,
       ior: 1.54,
-      thickness: 0.15,
+      thickness: 0.18,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
+      clearcoatRoughness: 0.04,
     });
 
-    const visorMesh = new THREE.Mesh(visorGeom, visorGlassMat);
-    visorMesh.position.set(-0.76, 2.05, 0.02);
+    const visorMesh = new THREE.Mesh(visorGeom, visorMat);
+    visorMesh.position.set(0, 1.95, 0.022);
     visorMesh.castShadow = true;
     this.group.add(visorMesh);
 
-    // Dark Internal Visor Bezel Plate
-    const visorPlateGeom = new THREE.PlaneGeometry(vw - 0.05, vh - 0.05);
-    const visorPlate = new THREE.Mesh(visorPlateGeom, darkHousingMat);
-    visorPlate.position.set(-0.76, 2.05, 0.005);
-    this.group.add(visorPlate);
-
     // -------------------------------------------------------------------------
-    // 2. Primary 50MP Sony IMX Sensor with Concentric Knurled Ring (Top Left)
+    // 2. Large Primary Main Camera Lens (Top Left: x = -0.72, y = 2.25)
     // -------------------------------------------------------------------------
     const mainCamGroup = new THREE.Group();
-    mainCamGroup.position.set(-0.78, 2.65, 0.045);
+    mainCamGroup.position.set(-0.72, 2.25, 0.045);
 
-    // Outer CNC Beveled Ring
-    const mainCamOuterGeom = new THREE.CylinderGeometry(0.54, 0.54, 0.045, 48);
-    mainCamOuterGeom.rotateX(Math.PI / 2);
-    const mainCamOuterRing = new THREE.Mesh(mainCamOuterGeom, milledRingMat);
-    mainCamOuterRing.castShadow = true;
-    mainCamGroup.add(mainCamOuterRing);
+    // Outer Milled CNC Bezel Ring
+    const mainOuterGeom = new THREE.CylinderGeometry(0.48, 0.48, 0.048, 48);
+    mainOuterGeom.rotateX(Math.PI / 2);
+    const mainOuterRing = new THREE.Mesh(mainOuterGeom, bezelMat);
+    mainOuterRing.castShadow = true;
+    mainCamGroup.add(mainOuterRing);
 
-    // Stepped Inner Knurled Ring
-    const mainCamKnurlGeom = new THREE.CylinderGeometry(0.44, 0.44, 0.055, 48);
-    mainCamKnurlGeom.rotateX(Math.PI / 2);
-    const mainCamKnurl = new THREE.Mesh(mainCamKnurlGeom, knurledRingMat);
-    mainCamGroup.add(mainCamKnurl);
+    // Stepped Inner Bezel Ring
+    const mainInnerGeom = new THREE.CylinderGeometry(0.38, 0.38, 0.055, 48);
+    mainInnerGeom.rotateX(Math.PI / 2);
+    const mainInnerRing = new THREE.Mesh(mainInnerGeom, innerKnurlMat);
+    mainCamGroup.add(mainInnerRing);
 
-    // Optical Sapphire Lens
-    const mainLensGeom = new THREE.CylinderGeometry(0.36, 0.36, 0.06, 48);
+    // Optical Sapphire Glass Lens
+    const mainLensGeom = new THREE.CylinderGeometry(0.30, 0.30, 0.060, 48);
     mainLensGeom.rotateX(Math.PI / 2);
     const mainLens = new THREE.Mesh(mainLensGeom, lensMat);
     mainCamGroup.add(mainLens);
 
-    // Internal Aperture & Pupil
-    const irisGeom = new THREE.CylinderGeometry(0.19, 0.19, 0.065, 32);
-    irisGeom.rotateX(Math.PI / 2);
-    const irisMesh = new THREE.Mesh(irisGeom, new THREE.MeshBasicMaterial({ color: 0x020406 }));
-    mainCamGroup.add(irisMesh);
+    // Center Pupil Aperture
+    const mainPupilGeom = new THREE.CircleGeometry(0.14, 32);
+    const mainPupil = new THREE.Mesh(mainPupilGeom, pupilMat);
+    mainPupil.position.z = 0.032;
+    mainCamGroup.add(mainPupil);
 
-    // Anti-reflective Violet Coating Core
-    const arCoreGeom = new THREE.CylinderGeometry(0.08, 0.08, 0.068, 24);
-    arCoreGeom.rotateX(Math.PI / 2);
-    const arCoreMat = new THREE.MeshBasicMaterial({ color: 0x1b1433 });
-    const arCoreMesh = new THREE.Mesh(arCoreGeom, arCoreMat);
-    mainCamGroup.add(arCoreMesh);
+    // White Specular Lens Glint Dot
+    const mainGlintGeom = new THREE.CircleGeometry(0.045, 16);
+    const mainGlint = new THREE.Mesh(mainGlintGeom, glintMat);
+    mainGlint.position.set(0.08, 0.08, 0.033);
+    mainCamGroup.add(mainGlint);
 
     this.group.add(mainCamGroup);
 
     // -------------------------------------------------------------------------
-    // 3. World's First 140x Periscope Ultra Zoom Aperture (Square Tetraprism)
+    // 3. Horizontal Pill Dual-Camera Capsule (Bottom Left: x = -0.72, y = 1.48)
     // -------------------------------------------------------------------------
-    const periscopeGroup = new THREE.Group();
-    periscopeGroup.position.set(-1.12, 1.62, 0.04);
+    const pillGroup = new THREE.Group();
+    pillGroup.position.set(-0.72, 1.48, 0.045);
 
-    // Square Outer Metallic Frame with Beveled Edges
-    const periFrameShape = new THREE.Shape();
+    // Pill Bezel Housing
+    const pillShape = new THREE.Shape();
     const pw = 0.52;
-    const ph = 0.52;
-    const pr = 0.08;
-    periFrameShape.moveTo(-pw / 2 + pr, -ph / 2);
-    periFrameShape.lineTo(pw / 2 - pr, -ph / 2);
-    periFrameShape.quadraticCurveTo(pw / 2, -ph / 2, pw / 2, -ph / 2 + pr);
-    periFrameShape.lineTo(pw / 2, ph / 2 - pr);
-    periFrameShape.quadraticCurveTo(pw / 2, ph / 2, pw / 2 - pr, ph / 2);
-    periFrameShape.lineTo(-pw / 2 + pr, ph / 2);
-    periFrameShape.quadraticCurveTo(-pw / 2, ph / 2, -pw / 2, ph / 2 - pr);
-    periFrameShape.lineTo(-pw / 2, -ph / 2 + pr);
-    periFrameShape.quadraticCurveTo(-pw / 2, -ph / 2, -pw / 2 + pr, -ph / 2);
+    const pr = 0.28;
+    pillShape.absarc(-pw / 2, 0, pr, Math.PI / 2, -Math.PI / 2, false);
+    pillShape.absarc(pw / 2, 0, pr, -Math.PI / 2, Math.PI / 2, false);
 
-    const periExtrude = { depth: 0.045, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.015, bevelThickness: 0.015 };
-    const periGeom = new THREE.ExtrudeGeometry(periFrameShape, periExtrude);
-    periGeom.center();
-    const periFrameMesh = new THREE.Mesh(periGeom, milledRingMat);
-    periscopeGroup.add(periFrameMesh);
+    const pillExtrude = {
+      depth: 0.045,
+      bevelEnabled: true,
+      bevelSegments: 3,
+      bevelSize: 0.018,
+      bevelThickness: 0.018,
+    };
+    const pillGeom = new THREE.ExtrudeGeometry(pillShape, pillExtrude);
+    pillGeom.center();
+    const pillMesh = new THREE.Mesh(pillGeom, bezelMat);
+    pillMesh.castShadow = true;
+    pillGroup.add(pillMesh);
 
-    // Deep Tetraprism Mirror Chamber (Angled internal prism reflection)
-    const prismOpeningGeom = new THREE.BoxGeometry(0.34, 0.34, 0.04);
-    const prismOpeningMesh = new THREE.Mesh(prismOpeningGeom, periscopeMirrorMat);
-    prismOpeningMesh.position.z = 0.01;
-    periscopeGroup.add(prismOpeningMesh);
+    // Dual Circular Lenses Inside the Pill
+    const subLensPositions = [-0.25, 0.25]; // Relative to pill center
+    subLensPositions.forEach((lx) => {
+      // Stepped Lens Ring
+      const ringGeom = new THREE.CylinderGeometry(0.17, 0.17, 0.052, 32);
+      ringGeom.rotateX(Math.PI / 2);
+      const ringMesh = new THREE.Mesh(ringGeom, innerKnurlMat);
+      ringMesh.position.x = lx;
+      pillGroup.add(ringMesh);
 
-    // Periscope Internal Glass Prism Element (folds light 90 degrees)
-    const prismGlassGeom = new THREE.BoxGeometry(0.24, 0.24, 0.02);
-    const prismGlassMesh = new THREE.Mesh(prismGlassGeom, lensMat);
-    prismGlassMesh.position.z = 0.025;
-    periscopeGroup.add(prismGlassMesh);
+      // Lens Glass
+      const subLensGeom = new THREE.CylinderGeometry(0.13, 0.13, 0.056, 32);
+      subLensGeom.rotateX(Math.PI / 2);
+      const subLens = new THREE.Mesh(subLensGeom, lensMat);
+      subLens.position.x = lx;
+      pillGroup.add(subLens);
 
-    this.group.add(periscopeGroup);
+      // Pupil
+      const pupilGeom = new THREE.CircleGeometry(0.065, 24);
+      const pupil = new THREE.Mesh(pupilGeom, pupilMat);
+      pupil.position.set(lx, 0, 0.030);
+      pillGroup.add(pupil);
 
-    // -------------------------------------------------------------------------
-    // 4. Secondary 50MP Ultra-Wide Macro Camera (Beside Periscope)
-    // -------------------------------------------------------------------------
-    const uwCamGroup = new THREE.Group();
-    uwCamGroup.position.set(-0.46, 1.62, 0.04);
+      // Specular Glint
+      const glintGeom = new THREE.CircleGeometry(0.022, 16);
+      const glint = new THREE.Mesh(glintGeom, glintMat);
+      glint.position.set(lx + 0.035, 0.035, 0.031);
+      pillGroup.add(glint);
+    });
 
-    const uwRingGeom = new THREE.CylinderGeometry(0.28, 0.28, 0.045, 36);
-    uwRingGeom.rotateX(Math.PI / 2);
-    const uwRing = new THREE.Mesh(uwRingGeom, milledRingMat);
-    uwCamGroup.add(uwRing);
-
-    const uwLensGeom = new THREE.CylinderGeometry(0.20, 0.20, 0.052, 36);
-    uwLensGeom.rotateX(Math.PI / 2);
-    const uwLens = new THREE.Mesh(uwLensGeom, lensMat);
-    uwCamGroup.add(uwLens);
-
-    const uwIrisGeom = new THREE.CylinderGeometry(0.09, 0.09, 0.056, 24);
-    uwIrisGeom.rotateX(Math.PI / 2);
-    const uwIris = new THREE.Mesh(uwIrisGeom, new THREE.MeshBasicMaterial({ color: 0x020406 }));
-    uwCamGroup.add(uwIris);
-
-    this.group.add(uwCamGroup);
+    this.group.add(pillGroup);
 
     // -------------------------------------------------------------------------
-    // 5. Film Camera-Inspired Red Video Recording Tally Light
+    // 4. Pinhole Microphone / Ambient Sensor
     // -------------------------------------------------------------------------
-    const tallyGroup = new THREE.Group();
-    tallyGroup.position.set(-0.18, 2.92, 0.038);
+    const micGeom = new THREE.CylinderGeometry(0.035, 0.035, 0.02, 16);
+    micGeom.rotateX(Math.PI / 2);
+    const micMesh = new THREE.Mesh(micGeom, pupilMat);
+    micMesh.position.set(-0.12, 2.22, 0.038);
+    this.group.add(micMesh);
 
-    // Polished Chrome/Silver Bezel Collar
-    const tallyBezelGeom = new THREE.CylinderGeometry(0.055, 0.055, 0.035, 24);
-    tallyBezelGeom.rotateX(Math.PI / 2);
-    const tallyBezel = new THREE.Mesh(tallyBezelGeom, milledRingMat);
-    tallyGroup.add(tallyBezel);
-
-    // Ruby Red Emissive Convex Jewel Lens
-    const tallyLensGeom = new THREE.SphereGeometry(0.04, 16, 16);
-    const tallyMat = new THREE.MeshStandardMaterial({
-      color: 0xff1122,
-      emissive: 0xff0022,
-      emissiveIntensity: 0.95,
-      roughness: 0.15,
+    // -------------------------------------------------------------------------
+    // 5. Iconic Red Status Square (Bottom Right of Upper Visor)
+    // -------------------------------------------------------------------------
+    const redMat = new THREE.MeshStandardMaterial({
+      color: 0xD71921,
+      roughness: 0.35,
       metalness: 0.1,
     });
-    const tallyLens = new THREE.Mesh(tallyLensGeom, tallyMat);
-    tallyLens.position.z = 0.015;
-    tallyGroup.add(tallyLens);
+    const redGeom = new THREE.BoxGeometry(0.14, 0.14, 0.015);
+    const redMesh = new THREE.Mesh(redGeom, redMat);
+    redMesh.position.set(1.24, 1.28, 0.035);
+    this.group.add(redMesh);
 
-    this.group.add(tallyGroup);
-
-    // -------------------------------------------------------------------------
-    // 6. Laser ToF Autofocus & Color Sensor Capsule
-    // -------------------------------------------------------------------------
-    const sensorShape = new THREE.Shape();
-    sensorShape.absarc(-0.08, 0, 0.065, Math.PI / 2, -Math.PI / 2, false);
-    sensorShape.absarc(0.08, 0, 0.065, -Math.PI / 2, Math.PI / 2, false);
-    const sensorGeom = new THREE.ShapeGeometry(sensorShape);
-    const sensorMat = new THREE.MeshBasicMaterial({ color: 0x070a0f });
-    const sensorMesh = new THREE.Mesh(sensorGeom, sensorMat);
-    sensorMesh.position.set(-1.22, 2.38, 0.025);
-    this.group.add(sensorMesh);
-
-    // Dual Micro Infrared Lenses inside ToF capsule
-    const irGeom = new THREE.CylinderGeometry(0.03, 0.03, 0.01, 16);
-    irGeom.rotateX(Math.PI / 2);
-    const irMat = new THREE.MeshBasicMaterial({ color: 0x141f2e });
-    const ir1 = new THREE.Mesh(irGeom, irMat);
-    ir1.position.set(-1.30, 2.38, 0.03);
-    const ir2 = new THREE.Mesh(irGeom, irMat);
-    ir2.position.set(-1.14, 2.38, 0.03);
-    this.group.add(ir1);
-    this.group.add(ir2);
+    // Dual Micro-Sensor Dots beside red square
+    const pinGeom = new THREE.CylinderGeometry(0.025, 0.025, 0.015, 12);
+    pinGeom.rotateX(Math.PI / 2);
+    const pin1 = new THREE.Mesh(pinGeom, pupilMat);
+    pin1.position.set(1.42, 1.34, 0.035);
+    const pin2 = new THREE.Mesh(pinGeom, pupilMat);
+    pin2.position.set(1.42, 1.22, 0.035);
+    this.group.add(pin1);
+    this.group.add(pin2);
 
     // -------------------------------------------------------------------------
-    // 7. True-Tone Dual LED Flash with Concentric Fresnel Diffuser
+    // 6. Horizontal Alignment Grooves Extending to Chassis Rails
     // -------------------------------------------------------------------------
-    const flashGroup = new THREE.Group();
-    flashGroup.position.set(-0.24, 2.38, 0.03);
-
-    const flashRingGeom = new THREE.CylinderGeometry(0.14, 0.14, 0.03, 32);
-    flashRingGeom.rotateX(Math.PI / 2);
-    const flashRing = new THREE.Mesh(flashRingGeom, milledRingMat);
-    flashGroup.add(flashRing);
-
-    // Cool White & Warm Amber Dual Emitters
-    const flashEmitGeom = new THREE.CircleGeometry(0.10, 24);
-    const flashEmitMat = new THREE.MeshBasicMaterial({ color: 0xfbf1d8 });
-    const flashEmit = new THREE.Mesh(flashEmitGeom, flashEmitMat);
-    flashEmit.position.z = 0.016;
-    flashGroup.add(flashEmit);
-
-    this.group.add(flashGroup);
-
-    // -------------------------------------------------------------------------
-    // 8. Precision Miniature Torx Fasteners (Camera Pod Mounts)
-    // -------------------------------------------------------------------------
-    const screwGeom = new THREE.CylinderGeometry(0.035, 0.035, 0.02, 16);
-    screwGeom.rotateX(Math.PI / 2);
-    const screwMat = new THREE.MeshStandardMaterial({
-      color: 0x8a99ad,
-      metalness: 0.95,
-      roughness: 0.2,
+    const grooveMat = new THREE.MeshStandardMaterial({
+      color: 0x181c24,
+      metalness: 0.8,
+      roughness: 0.4,
     });
 
-    const screwPositions = [
-      [-1.42, 3.10],
-      [-0.15, 3.10],
-      [-1.42, 1.02],
-      [-0.15, 1.02],
+    // Left & Right horizontal transition grooves matching reference image
+    const grooveCoords = [
+      { x: -1.70, y: 2.75, w: 0.28 },
+      { x: 1.70, y: 2.75, w: 0.28 },
+      { x: -1.70, y: 1.15, w: 0.28 },
+      { x: 1.70, y: 1.15, w: 0.28 },
     ];
-
-    screwPositions.forEach(([sx, sy]) => {
-      const screwMesh = new THREE.Mesh(screwGeom, screwMat);
-      screwMesh.position.set(sx, sy, 0.025);
-      this.group.add(screwMesh);
+    grooveCoords.forEach((g) => {
+      const gGeom = new THREE.BoxGeometry(g.w, 0.04, 0.01);
+      const gMesh = new THREE.Mesh(gGeom, grooveMat);
+      gMesh.position.set(g.x, g.y, 0.015);
+      this.group.add(gMesh);
     });
   }
 
